@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Tank_Attack_Project/Tank_Attack_Project.vcxproj" Id="3a9ee212-ceff-43e7-babf-7d022b824377" />
+</Solution>

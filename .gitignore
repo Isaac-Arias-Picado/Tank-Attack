@@ -1,76 +1,76 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# debug information files
-*.dwo
-
-# Visual Studio / IDE files
+SFML-3.0.2/
 .vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
-
-# Build results
+*.opendb
+*.db
+*.VC.db
+*.VC.opendb
 [Dd]ebug/
-[Dd]ebugPublic/
 [Rr]elease/
+[Dd]ebugPublic/
 [Rr]eleases/
 x64/
 x86/
 [Bb]in/
 [Oo]bj/
-
-# Visual Studio Code
+.bin/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.o
+*.out
+*.app
+*.so
+*.dylib
+*.d
+*.slo
+*.lo
+*.gch
+*.pch
+*.mod
+*.smod
+*.lai
+*.la
+*.a
+*.dwo
 .vscode/
-
-# Backup files
-*~
-*.bak
 *.tmp
-
-# Logs
+*.bak
 *.log
+*.tlog
+*.lastbuildstate
 *.vspscc
 *.vssscc
-
-# CMake
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+_CPack_Packages/
+CPackConfig.cmake
+CPackSourceConfig.cmake
+ipch/
+*.aps
+*.ncb
+*.sdf
+*.cache
+*.intermediate.manifest
+*.unsuccessfulbuild
+vcpkg_installed/
+*.orig
+*.suo
+*.user
+*.sln.docstates
+Browse.VC.db
+*.exe.recipe
+*.iobj
+*.ipdb
+$Recycle.Bin/
+Thumbs.db
+ehthumbs.db
+Desktop.ini
