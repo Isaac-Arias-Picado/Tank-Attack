@@ -1,0 +1,86 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{float}
+
+% Configuración para listings
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=4pt,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=2,
+    showstringspaces=false,
+    xleftmargin=10pt,
+    xrightmargin=5pt,
+    framexleftmargin=8pt,
+    captionpos=b,
+    abovecaptionskip=5pt,
+    belowcaptionskip=5pt
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+}
+
+\begin{document}
+
+\title{Tank Attack}
+
+\author{\IEEEauthorblockN{Isaac Arias Picado Jose Andres Chavarria}
+\IEEEauthorblockA{\textit{Estudiante de Ingeniería en Computadores} \\
+Tecnológico de Costa Rica \\
+Cartago, Costa Rica \\
+Email: i.arias.2@estudiantec.cr j.chavarria.6@estudiantec.cr \\
+Repositorio: \url{https://github.com/Isaac-Arias-Picado/Tank-Attack.git}}
+}
+
+\maketitle
+
+
+\section{INTRODUCCIÓN}
+
+
+\section{DETALLES DE IMPLEMENTACIÓN}
+
+
+
+\section{CONCLUSIONES}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{Tank Assets}
+Futuristic Tanks and Soldiers Topdown Pixel Art [En línea]. Disponible: \url{https://aztrakatze.itch.io/futuretanknsoldier/download/eyJpZCI6NTg3NzEwLCJleHBpcmVzIjoxNzc2MzE1Njk1fQ%3d%3d%2eZrEtVwN1NnZI6NSfTwxMkQ1i8c8%3d}. 
+[Accedido: 4-abr-2026].
+
+\bibitem{Project Asset}
+Top-down Tanks Redux [En línea]. Disponible: \url{https://kenney-assets.itch.io/top-down-tanks-redux/download/eyJpZCI6MTE2NTM1MCwiZXhwaXJlcyI6MTc3NjMxNTc0OX0%3d%2enn6Ll8FPuo0L%2f5dSKooOQXjeu0s%3d}. 
+[Accedido: 4-abr-2026].
+
+\end{thebibliography}
+
+\end{document}
