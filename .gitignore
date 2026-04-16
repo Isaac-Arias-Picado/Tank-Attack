@@ -39,3 +39,38 @@
 
 # debug information files
 *.dwo
+
+# Visual Studio / IDE files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio Code
+.vscode/
+
+# Backup files
+*~
+*.bak
+*.tmp
+
+# Logs
+*.log
+*.vspscc
+*.vssscc
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
