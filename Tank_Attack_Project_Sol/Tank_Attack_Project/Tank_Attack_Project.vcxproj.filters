@@ -13,8 +13,46 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Modelo">
+      <UniqueIdentifier>{6abfe1dd-c97c-499f-8106-9e67861e5f8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{60373d93-049d-4225-959e-ba29e3b5df90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Graph.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+    <ClCompile Include="Tanque.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+    <ClCompile Include="Jugador.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Node.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Tanque.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Jugador.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
