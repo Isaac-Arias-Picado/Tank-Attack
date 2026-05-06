@@ -7,7 +7,7 @@ private:
     int id;                   // 0 o 1
     char nombre[50];          // nombre del jugador
     Tanque** tanques;         // arreglo de 4 tanques
-    int tanquesVivos;         
+    int tanquesVivos;   
 
 public:
     Jugador(int id, const char* nombre, Graph* grafo);

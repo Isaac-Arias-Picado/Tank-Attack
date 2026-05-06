@@ -2,7 +2,7 @@
 #include "Graph.h"    
 #include "Node.h" 
 
-Tanque::Tanque(int jugador, int color, int nodo, Graph * grafo){
+Tanque::Tanque(int jugador, char color, int nodo, Graph * grafo){
 	this->jugador = jugador;
 	this->color = color;
 	this->nodoActual = nodo;
@@ -24,4 +24,17 @@ void Tanque::mover_tanque(int nuevaCasilla) {
 
 int Tanque::getNodoActual(){
 	return nodoActual;
+}
+
+void Tanque::recibirdanho() {
+    if (color == 'C' || color == 'A') {
+        vida -= 25;
+    }
+    else {
+        vida -= 50;
+    }
+}
+
+void Tanque::recibirdanhototal() {
+    vida = 0;
 }

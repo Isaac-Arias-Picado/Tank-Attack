@@ -37,6 +37,12 @@
     <ClCompile Include="Jugador.cpp">
       <Filter>Modelo</Filter>
     </ClCompile>
+    <ClCompile Include="Cola.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
+    <ClCompile Include="Powerup.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h">
@@ -52,6 +58,12 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Jugador.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Cola.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Powerup.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
