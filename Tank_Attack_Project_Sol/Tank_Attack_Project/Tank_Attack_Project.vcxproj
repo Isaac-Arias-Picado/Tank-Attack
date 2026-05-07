@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cola.cpp" />
+    <ClCompile Include="Cola_Prioridad.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="Jugador.cpp" />
     <ClCompile Include="main.cpp" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cola.h" />
+    <ClInclude Include="Cola_Prioridad.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Jugador.h" />
     <ClInclude Include="Node.h" />

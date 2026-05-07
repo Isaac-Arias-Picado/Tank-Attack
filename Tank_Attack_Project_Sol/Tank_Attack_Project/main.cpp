@@ -5,6 +5,9 @@
 #include <iostream>
 #include "Graph.h"
 #include "Jugador.h"
+#include "Cola_Prioridad.h"
+#include "Cola.h"
+#include "Powerup.h"
 
 int main() {
     srand(time(NULL));
@@ -50,5 +53,33 @@ int main() {
     }
     std::cout << "Total de nodos ocupados con tanques despues del movimiento: " << nuevosTanquesEncontrados << std::endl;
 
+    ColaPrioridad cp;
+    cp.Insertar(5, 10.0f);
+    cp.Insertar(2, 3.0f);
+    cp.Insertar(8, 7.0f);
+    cp.Insertar(1, 1.0f);
+    cp.Insertar(4, 5.0f);
+
+    while (!cp.vacio()) {
+        NodoHeap n = cp.Sacarmin();
+        std::cout << "Nodo: " << n.idnodo << " Costo: " << n.costo << std::endl;
+    }
+    class PowerupPrueba : public Powerup {
+    public:
+        PowerupPrueba(const char* nombre) : Powerup(nombre) {}
+        void aplicar(Jugador* jugador) override {}
+    };
+
+    Cola cola;
+    cola.Enlistar(new PowerupPrueba("DobleTurno"));
+    cola.Enlistar(new PowerupPrueba("PoderAtaque"));
+    cola.Enlistar(new PowerupPrueba("PrecisionAtaque"));
+
+    std::cout << "\nTest Cola:" << std::endl;
+    while (true) {
+        Powerup* p = cola.Desenlistar();
+        if (p == nullptr) break;
+        std::cout << p->getNombre() << std::endl;
+    }
     return 0;
 }

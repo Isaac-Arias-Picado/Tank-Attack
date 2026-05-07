@@ -13,6 +13,6 @@ private:
 
 public:
 	Cola();
-	void Agregarpowerup(Powerup* nuevo);
-	Powerup* Usarpowerup();
+	void Enlistar(Powerup* nuevo);
+	Powerup* Desenlistar();
 };

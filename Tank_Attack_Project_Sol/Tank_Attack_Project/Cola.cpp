@@ -7,7 +7,7 @@ Cola::Cola() {
 	this->cantnodos = 0;
 }
 //Metodo para agregar nuevos power ups a la cola
-void Cola::Agregarpowerup(Powerup* nuevo) {
+void Cola::Enlistar(Powerup* nuevo) {
 	NodoCola* nuevonodo = new NodoCola ();
 	nuevonodo->dato = nuevo;
 	nuevonodo->siguiente = nullptr;
@@ -22,7 +22,7 @@ void Cola::Agregarpowerup(Powerup* nuevo) {
 	cantnodos++;
 }
 //Metodo para eliminar el primer elemento de la cola (FIFO) y retorna el power up para usarlo por el jugador
-Powerup* Cola::Usarpowerup() {
+Powerup* Cola::Desenlistar() {
 	if (cabeza == nullptr) return nullptr;
 	NodoCola* temp = cabeza;
 	Powerup* powerup=nullptr;

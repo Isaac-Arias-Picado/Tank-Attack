@@ -43,6 +43,9 @@
     <ClCompile Include="Powerup.cpp">
       <Filter>Modelo</Filter>
     </ClCompile>
+    <ClCompile Include="Cola_Prioridad.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h">
@@ -64,6 +67,9 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Powerup.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Cola_Prioridad.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
