@@ -23,7 +23,6 @@ x86/
 *.ilk
 *.exp
 *.lib
-*.dll
 *.o
 *.out
 *.app
