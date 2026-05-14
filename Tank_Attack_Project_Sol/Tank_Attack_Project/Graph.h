@@ -1,3 +1,4 @@
+#pragma once
 class Node;
 class Object;
 
@@ -13,4 +14,8 @@ public:
     Graph(int largo, int ancho);
 	bool disponible(int nodoId);
     Node* getNodo(int id);
+    int getN() const { return n; }
+    bool** getMatriz() const { return matrizAdy; }
+    int getAncho() const { return ancho; }
+    int getLargo() const { return largo; }
 };

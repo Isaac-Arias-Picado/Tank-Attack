@@ -19,67 +19,50 @@ int main() {
     jugador1.asignarTanques();
     jugador2.asignarTanques();
 
-    // Contar cuantos nodos tienen tanques
-    int tanquesEncontrados = 0;
-    for (int i = 0; i < 400; i++) {
-        if (!mapa.disponible(i)) {
-            tanquesEncontrados++;
+    // Test Jugador1 (Rojo/Amarillo - Dijkstra 80% / Aleatorio 20%) 
+    std::cout << "Jugador1: 20 movimientos" << std::endl;
+    Tanque* tanque1 = jugador1.getTanque(0);
+
+    for (int mov = 0; mov < 20; mov++) {
+        int origen = tanque1->getNodoActual();
+        // Buscar destino aleatorio disponible
+        int destino = -1;
+        for (int intento = 0; intento < 1000; intento++) {
+            int candidato = rand() % 400;
+            if (mapa.disponible(candidato) && candidato != origen) {
+                destino = candidato;
+                break;
+            }
         }
+        if (destino == -1) { std::cout << "No hay destino disponible" << std::endl; continue; }
+
+        std::cout << "Mov " << mov + 1 << ": " << origen << " -> " << destino << std::endl;
+        tanque1->mover_tanque(destino);
+        while (tanque1->enMovimiento()) tanque1->paso();
+        std::cout << "  Llego a: " << tanque1->getNodoActual() << std::endl;
     }
-    std::cout << "Total de nodos ocupados con tanques: " << tanquesEncontrados << std::endl;
 
-    Tanque* tanqueAMover = jugador1.getTanque(0);  // tomar el primer tanque del jugador 1
-    int posicionActual = tanqueAMover->getNodoActual();
+    // Test Jugador2 (Azul/Celeste - BFS 50% / Aleatorio 50%)
+    std::cout << "\nJugador2: 20 movimientos " << std::endl;
+    Tanque* tanque2 = jugador2.getTanque(0);
 
-    // Buscar un nodo destino disponible 
-    int nodoDestino = -1;
-    for (int i = 0; i < 400; i++) {
-        if (mapa.disponible(i) && i != posicionActual) {
-            nodoDestino = i;
-            break;
+    for (int mov = 0; mov < 20; mov++) {
+        int origen = tanque2->getNodoActual();
+        int destino = -1;
+        for (int intento = 0; intento < 1000; intento++) {
+            int candidato = rand() % 400;
+            if (mapa.disponible(candidato) && candidato != origen) {
+                destino = candidato;
+                break;
+            }
         }
+        if (destino == -1) { std::cout << "No hay destino disponible" << std::endl; continue; }
+
+        std::cout << "Mov " << mov + 1 << ": " << origen << " -> " << destino << std::endl;
+        tanque2->mover_tanque(destino);
+        while (tanque2->enMovimiento()) tanque2->paso();
+        std::cout << "  Llego a: " << tanque2->getNodoActual() << std::endl;
     }
 
-    if (nodoDestino != -1) {
-        std::cout << "Moviendo tanque de nodo " << posicionActual << " a nodo " << nodoDestino << std::endl;
-        tanqueAMover->mover_tanque(nodoDestino);
-    }
-
-    int nuevosTanquesEncontrados = 0;
-    for (int i = 0; i < 400; i++) {
-        if (!mapa.disponible(i)) {
-            nuevosTanquesEncontrados++;
-        }
-    }
-    std::cout << "Total de nodos ocupados con tanques despues del movimiento: " << nuevosTanquesEncontrados << std::endl;
-
-    ColaPrioridad cp;
-    cp.Insertar(5, 10.0f);
-    cp.Insertar(2, 3.0f);
-    cp.Insertar(8, 7.0f);
-    cp.Insertar(1, 1.0f);
-    cp.Insertar(4, 5.0f);
-
-    while (!cp.vacio()) {
-        NodoHeap n = cp.Sacarmin();
-        std::cout << "Nodo: " << n.idnodo << " Costo: " << n.costo << std::endl;
-    }
-    class PowerupPrueba : public Powerup {
-    public:
-        PowerupPrueba(const char* nombre) : Powerup(nombre) {}
-        void aplicar(Jugador* jugador) override {}
-    };
-
-    Cola cola;
-    cola.Enlistar(new PowerupPrueba("DobleTurno"));
-    cola.Enlistar(new PowerupPrueba("PoderAtaque"));
-    cola.Enlistar(new PowerupPrueba("PrecisionAtaque"));
-
-    std::cout << "\nTest Cola:" << std::endl;
-    while (true) {
-        Powerup* p = cola.Desenlistar();
-        if (p == nullptr) break;
-        std::cout << p->getNombre() << std::endl;
-    }
     return 0;
 }

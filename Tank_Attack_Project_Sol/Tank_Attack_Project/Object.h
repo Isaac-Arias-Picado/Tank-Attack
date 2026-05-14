@@ -1,3 +1,4 @@
+#pragma once
 class Object {
 protected:
     int id;           // identificador del objeto
