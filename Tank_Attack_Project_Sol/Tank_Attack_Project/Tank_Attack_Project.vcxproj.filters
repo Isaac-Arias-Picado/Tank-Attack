@@ -49,6 +49,9 @@
     <ClCompile Include="Pathfiding.cpp">
       <Filter>Modelo</Filter>
     </ClCompile>
+    <ClCompile Include="Obstaculo.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h">
@@ -76,6 +79,9 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Pathfinding.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Obstaculo.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>

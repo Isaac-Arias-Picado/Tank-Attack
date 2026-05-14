@@ -149,6 +149,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Obstaculo.cpp" />
     <ClCompile Include="Pathfiding.cpp" />
     <ClCompile Include="Powerup.cpp" />
     <ClCompile Include="Tanque.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Jugador.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Obstaculo.h" />
     <ClInclude Include="Pathfinding.h" />
     <ClInclude Include="Powerup.h" />
     <ClInclude Include="Tanque.h" />

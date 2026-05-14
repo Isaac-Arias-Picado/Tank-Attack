@@ -1,4 +1,5 @@
 #pragma once
+#include "Obstaculo.h"
 class Node;
 class Object;
 
@@ -18,4 +19,6 @@ public:
     bool** getMatriz() const { return matrizAdy; }
     int getAncho() const { return ancho; }
     int getLargo() const { return largo; }
+    void generarObstaculos(int cantidad);
+    bool estaConectado();
 };

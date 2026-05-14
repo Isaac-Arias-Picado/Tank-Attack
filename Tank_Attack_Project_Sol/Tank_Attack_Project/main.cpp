@@ -19,6 +19,18 @@ int main() {
     jugador1.asignarTanques();
     jugador2.asignarTanques();
 
+    mapa.generarObstaculos(50);
+
+    // Contar obstáculos
+    int obstaculos = 0;
+    int libres = 0;
+    for (int i = 0; i < 400; i++) {
+        if (!mapa.disponible(i)) obstaculos++;
+        else libres++;
+    }
+    std::cout << "Obstaculos colocados: " << obstaculos - 8 << std::endl; // -8 por los tanques
+    std::cout << "Nodos libres: " << libres << std::endl;
+    std::cout << "Mapa conectado: " << (mapa.estaConectado() ? "SI" : "NO") << std::endl;
     // Test Jugador1 (Rojo/Amarillo - Dijkstra 80% / Aleatorio 20%) 
     std::cout << "Jugador1: 20 movimientos" << std::endl;
     Tanque* tanque1 = jugador1.getTanque(0);
@@ -63,6 +75,7 @@ int main() {
         while (tanque2->enMovimiento()) tanque2->paso();
         std::cout << "  Llego a: " << tanque2->getNodoActual() << std::endl;
     }
+
 
     return 0;
 }
