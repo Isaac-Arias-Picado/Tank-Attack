@@ -67,6 +67,77 @@ Path dijkstra(Graph* grafo, int origen, int destino) {
     return path;
 }
 
+int heuristica(int origen, int destino, int ancho) {
+    int filaOrigen = origen / ancho;
+    int filaDestino = destino / ancho;
+    int columnaOrigen = origen % ancho;
+    int columnaDestino = destino % ancho;
+    return abs((filaDestino - filaOrigen)) + abs((columnaDestino - columnaOrigen));
+}
+
+Path AAsterisco(Graph* grafo, int origen, int destino) {
+    int ancho = grafo->getAncho();
+    int n = grafo->getN();
+    float dist[400];
+    int prev[400];
+    bool visitado[400];
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = 1e9f;
+        prev[i] = -1;
+        visitado[i] = false;
+    }
+
+    dist[origen] = 0.0f;
+    ColaPrioridad pq;
+    pq.Insertar(origen, 0.0f);
+
+    while (!pq.vacio()) {
+        NodoHeap actual = pq.Sacarmin();
+        int u = actual.idnodo;
+
+        if (u < 0 || u >= n) continue;
+        if (visitado[u]) continue;
+        visitado[u] = true;
+
+        if (u == destino) break;
+
+        for (int v = 0; v < n; v++) {
+            if (!grafo->getMatriz()[u][v]) continue;
+            if (!grafo->disponible(v) && v != destino) continue;
+            if (visitado[v]) continue;
+
+            float nuevaDist = dist[u] + 1.0f;
+            if (nuevaDist < dist[v]) {
+                dist[v] = nuevaDist;
+                prev[v] = u;
+                pq.Insertar(v, nuevaDist+heuristica(v,destino,ancho));
+            }
+        }
+    }
+
+    // Reconstruir path
+    Path path;
+    if (prev[destino] == -1 && destino != origen) return path; // sin camino
+
+    int temp[400];
+    int count = 0;
+    int cur = destino;
+    while (cur != -1) {
+        temp[count++] = cur;
+        cur = prev[cur];
+    }
+
+    // Invertir
+    for (int i = 0; i < count; i++) {
+        path.nodos[i] = temp[count - 1 - i];
+    }
+    path.longitud = count;
+    path.indiceActual = 1; // 0 es origen, empezamos en 1
+
+    return path;
+}
+
 Path bfs(Graph* grafo, int origen, int destino) {
     int n = grafo->getN();
     int prev[400];
