@@ -52,6 +52,9 @@
     <ClCompile Include="Obstaculo.cpp">
       <Filter>Modelo</Filter>
     </ClCompile>
+    <ClCompile Include="SistemaTurnos.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h">
@@ -82,6 +85,9 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Obstaculo.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SistemaTurnos.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>

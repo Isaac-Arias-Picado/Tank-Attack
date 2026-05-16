@@ -13,5 +13,6 @@ public:
     Jugador(int id, const char* nombre, Graph* grafo);
     void asignarTanques();
     Tanque* getTanque(int index) const;
+    int getTanquesVivos();
 };
 

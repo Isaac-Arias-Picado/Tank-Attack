@@ -7,7 +7,7 @@
 Jugador::Jugador(int id, const char* nombre, Graph* grafo) {
     this->id = id;
     this->grafo = grafo;
-    this->tanquesVivos = 0;
+    tanquesVivos = 0;
 
     // Copiar nombre
     int i = 0;
@@ -54,6 +54,10 @@ void Jugador::asignarTanques() {
         Node* nodo = grafo->getNodo(nodoInicial);
         nodo->setObjeto(tanques[i]);
     }
+}
+
+int Jugador::getTanquesVivos() {
+    return tanquesVivos;
 }
 
 Tanque* Jugador::getTanque(int index) const {
