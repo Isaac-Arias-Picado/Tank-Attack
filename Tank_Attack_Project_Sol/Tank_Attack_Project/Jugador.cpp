@@ -1,6 +1,7 @@
 #include "Jugador.h"
 #include "Graph.h"
 #include "Node.h"
+#include "Tanque.h"
 #include <cstdlib>
 #include <cstring>
 
@@ -48,8 +49,7 @@ void Jugador::asignarTanques() {
                 color = 2;  // amarillo
             }
         }
-
-        tanques[i] = new Tanque(id, color, nodoInicial, grafo);
+        tanques[i] = new Tanque(id, color, nodoInicial, grafo, this);
         tanquesVivos++;
         Node* nodo = grafo->getNodo(nodoInicial);
         nodo->setObjeto(tanques[i]);
@@ -58,6 +58,10 @@ void Jugador::asignarTanques() {
 
 int Jugador::getTanquesVivos() {
     return tanquesVivos;
+}
+
+void Jugador::tanqueMuerto() {
+    tanquesVivos--;
 }
 
 Tanque* Jugador::getTanque(int index) const {

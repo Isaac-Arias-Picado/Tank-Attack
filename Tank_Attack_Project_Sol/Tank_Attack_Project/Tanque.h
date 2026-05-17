@@ -1,4 +1,4 @@
-#pragma once
+
 #include "Object.h"
 #include "Pathfinding.h"
 #include "Graph.h"
@@ -11,9 +11,10 @@ private:
     int nodoActual;
     Graph* grafo;
     Path pathActual;
+    Jugador* objjugador;
 
 public:
-    Tanque(int jugador, char color, int nodoInicial,Graph* grafo);
+    Tanque(int jugador, char color, int nodoInicial,Graph* grafo, Jugador* objjugador);
     const char* getTipo() const override;  
     void mover_tanque(int nuevaCasilla);
     void paso();

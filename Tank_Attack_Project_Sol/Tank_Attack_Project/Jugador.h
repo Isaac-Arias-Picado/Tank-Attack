@@ -1,4 +1,4 @@
-#include "Tanque.h"
+class Tanque;
 class Graph;
 
 class Jugador {
@@ -14,5 +14,6 @@ public:
     void asignarTanques();
     Tanque* getTanque(int index) const;
     int getTanquesVivos();
+    void tanqueMuerto();
 };
 

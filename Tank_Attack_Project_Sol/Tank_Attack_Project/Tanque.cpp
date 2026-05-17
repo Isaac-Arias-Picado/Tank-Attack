@@ -2,14 +2,16 @@
 #include "Graph.h"    
 #include "Node.h" 
 #include <cstdlib>
+#include "Jugador.h"
 
-Tanque::Tanque(int jugador, char color, int nodo, Graph * grafo){
+Tanque::Tanque(int jugador, char color, int nodo, Graph * grafo, Jugador* objjugador){
 	this->jugador = jugador;
 	this->color = color;
 	this->nodoActual = nodo;
 	this->vidaMaxima = 100;
 	this->vida = vidaMaxima;
 	this->grafo = grafo;
+    this->objjugador = objjugador;
 }
 
 const char* Tanque::getTipo() const {
@@ -40,7 +42,7 @@ void Tanque::paso() {
 
     int siguiente = pathActual.nodos[pathActual.indiceActual];
 
-    if (!grafo->disponible(siguiente)) return; // bloqueado mid-path
+    if (!grafo->disponible(siguiente)) return; 
 
     grafo->getNodo(nodoActual)->setObjeto(nullptr);
     nodoActual = siguiente;
@@ -59,8 +61,18 @@ void Tanque::recibirdanho() {
     else {
         vida -= 50;
     }
+    if (vida <= 0) {
+        activo = false;
+        if (grafo->getNodo(nodoActual) != nullptr)
+            grafo->getNodo(nodoActual)->setObjeto(nullptr);
+        objjugador->tanqueMuerto();
+    }
 }
 
 void Tanque::recibirdanhototal() {
     vida = 0;
+    activo = false;
+    if (grafo->getNodo(nodoActual) != nullptr)
+        grafo->getNodo(nodoActual)->setObjeto(nullptr);
+    objjugador->tanqueMuerto();
 }

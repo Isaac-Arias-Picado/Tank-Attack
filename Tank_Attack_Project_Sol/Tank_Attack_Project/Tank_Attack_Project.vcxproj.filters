@@ -55,6 +55,9 @@
     <ClCompile Include="SistemaTurnos.cpp">
       <Filter>Modelo</Filter>
     </ClCompile>
+    <ClCompile Include="Bala.cpp">
+      <Filter>Modelo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h">
@@ -88,6 +91,9 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="SistemaTurnos.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Bala.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>

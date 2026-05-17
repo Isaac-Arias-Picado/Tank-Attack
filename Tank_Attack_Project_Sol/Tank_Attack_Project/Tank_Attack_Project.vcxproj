@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bala.cpp" />
     <ClCompile Include="Cola.cpp" />
     <ClCompile Include="Cola_Prioridad.cpp" />
     <ClCompile Include="Graph.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="Tanque.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bala.h" />
     <ClInclude Include="Cola.h" />
     <ClInclude Include="Cola_Prioridad.h" />
     <ClInclude Include="Graph.h" />

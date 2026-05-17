@@ -319,3 +319,58 @@ Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
     // Ultimo recurso: avanzar hasta donde se pueda desde origen
     return avanzarHastaDonde(grafo, origen, destino, ancho);
 }
+
+Path movimientoBala(Graph* grafo, int origen, int destino) {
+    int ancho = grafo->getAncho();
+    int filaOrigen = origen / ancho;
+    int colOrigen = origen % ancho;
+    int filaDestino = destino / ancho;
+    int colDestino = destino % ancho;
+
+    int difx = abs(colDestino - colOrigen);
+    int dify = abs(filaDestino - filaOrigen);
+    int error = difx - dify;
+
+    int movCol;
+    if (colDestino > colOrigen) {
+        movCol = 1;
+    }
+    else {
+        movCol = -1;
+    }
+
+    int movFila;
+    if (filaDestino > filaOrigen) {
+        movFila = 1;
+    }
+    else {
+        movFila = -1;
+    }
+
+    Path path;
+    int cont = 0;
+    while (true) {
+        int id = filaOrigen * ancho + colOrigen;
+        path.nodos[cont++] = id;
+
+        if (filaOrigen == filaDestino && colOrigen == colDestino) break;  // llegamos al destino
+
+        if (error > 0) {
+            colOrigen += movCol;
+            error -= dify;
+        }
+        else if (error < 0) {
+            filaOrigen += movFila;
+            error += difx;
+        }
+        else {
+            colOrigen += movCol;
+            filaOrigen += movFila;
+            error += difx - dify;
+        }
+    }
+
+    path.longitud = cont;
+    path.indiceActual = 1;
+    return path;  
+}
