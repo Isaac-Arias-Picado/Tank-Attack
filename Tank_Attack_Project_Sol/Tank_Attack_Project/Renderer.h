@@ -1,0 +1,45 @@
+#include <SFML/Graphics.hpp>
+#include <optional>
+#include "Graph.h"
+#include "Jugador.h"
+
+#define CELL_SIZE 64
+#define ROWS 20
+#define COLS 20
+
+class Renderer {
+private:
+    Graph* grafo;
+    Jugador* jugador1;
+    Jugador* jugador2;
+    sf::RenderWindow window;
+
+    sf::Texture texturePiso;
+    sf::Texture textureCrate;
+    sf::Texture textureTank1;
+    sf::Texture textureTank2;
+    sf::Texture textureTank3;
+    sf::Texture textureTank4;
+
+    sf::Font font;
+    bool fontLoaded;
+    sf::Text* turnoTexto;      
+    sf::Text* infoTanquesTexto;
+    sf::RectangleShape hudFondo;
+
+    void initHUD();
+    void updateHUD(Jugador* jugadorActivo);
+    void drawHUD();
+
+public:
+    Renderer(Graph* grafo, Jugador* j1, Jugador* j2);
+    ~Renderer();
+
+    bool init();
+    void render();
+    void updateTurnDisplay(Jugador* jugadorActivo);
+    std::optional<sf::Event> pollEvent();
+    void close();
+    bool isOpen() const;
+    void handleEvents();
+};

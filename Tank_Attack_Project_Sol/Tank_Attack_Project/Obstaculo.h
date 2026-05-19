@@ -1,4 +1,5 @@
 // Obstaculo.h
+#pragma once
 #include "Object.h"
 class Obstaculo : public Object {
 public:

@@ -27,32 +27,22 @@ Jugador::Jugador(int id, const char* nombre, Graph* grafo) {
 
 void Jugador::asignarTanques() {
     for (int i = 0; i < 4; i++) {
-        int color;
         int nodoInicial;
         do {
             nodoInicial = rand() % (20 * 20);
         } while (!grafo->disponible(nodoInicial));
 
+        char color;
         if (id == 0) {
-            if (i < 2) {
-                color = 0;  // azul
-            }
-            else {
-                color = 3;  // rojo
-            }
+            color = (i < 2) ? 'Z' : 'R'; // aZul, Rojo
         }
         else {
-            if (i < 2) {
-                color = 1;  // celeste
-            }
-            else {
-                color = 2;  // amarillo
-            }
+            color = (i < 2) ? 'C' : 'A'; // Celeste, Amarillo
         }
+
         tanques[i] = new Tanque(id, color, nodoInicial, grafo, this);
         tanquesVivos++;
-        Node* nodo = grafo->getNodo(nodoInicial);
-        nodo->setObjeto(tanques[i]);
+        grafo->getNodo(nodoInicial)->setObjeto(tanques[i]);
     }
 }
 

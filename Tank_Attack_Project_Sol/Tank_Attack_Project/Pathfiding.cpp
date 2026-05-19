@@ -1,4 +1,3 @@
-// Pathfinding.cpp
 #include "Pathfinding.h"
 #include "Cola_Prioridad.h"
 #include "Cola.h"

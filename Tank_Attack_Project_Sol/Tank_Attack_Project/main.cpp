@@ -1,13 +1,12 @@
 #include <SFML/Graphics.hpp>
-#include <optional>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include "Graph.h"
 #include "Jugador.h"
-#include "Cola_Prioridad.h"
-#include "Cola.h"
-#include "Powerup.h"
+#include "Renderer.h"
+#include "SistemaTurnos.h"
+#include "Tanque.h"
 
 int main() {
     srand(time(NULL));
@@ -18,64 +17,90 @@ int main() {
 
     jugador1.asignarTanques();
     jugador2.asignarTanques();
-
     mapa.generarObstaculos(50);
 
-    // Contar obstáculos
-    int obstaculos = 0;
-    int libres = 0;
-    for (int i = 0; i < 400; i++) {
-        if (!mapa.disponible(i)) obstaculos++;
-        else libres++;
-    }
-    std::cout << "Obstaculos colocados: " << obstaculos - 8 << std::endl; // -8 por los tanques
-    std::cout << "Nodos libres: " << libres << std::endl;
-    std::cout << "Mapa conectado: " << (mapa.estaConectado() ? "SI" : "NO") << std::endl;
-    // Test Jugador1 (Rojo/Amarillo - Dijkstra 80% / Aleatorio 20%) 
-    std::cout << "Jugador1: 20 movimientos" << std::endl;
-    Tanque* tanque1 = jugador1.getTanque(0);
+    SistemaTurnos turnos(&jugador1, &jugador2);
+    Renderer renderer(&mapa, &jugador1, &jugador2);
+    if (!renderer.init()) return -1;
 
-    for (int mov = 0; mov < 20; mov++) {
-        int origen = tanque1->getNodoActual();
-        // Buscar destino aleatorio disponible
-        int destino = -1;
-        for (int intento = 0; intento < 1000; intento++) {
-            int candidato = rand() % 400;
-            if (mapa.disponible(candidato) && candidato != origen) {
-                destino = candidato;
-                break;
+    Tanque* tanqueSeleccionado = nullptr;
+    bool esperandoDestino = false;
+
+    while (renderer.isOpen()) {
+        // Verificar victoria
+        Jugador* ganador = turnos.verificarVictoria();
+        if (ganador != nullptr) {
+            std::cout << "Gano: " << ganador->getNombre() << std::endl;
+            break;
+        }
+
+        // Actualizar HUD con el jugador activo
+        renderer.updateTurnDisplay(turnos.getJugadorActivo());
+
+        // Avanzar movimiento
+        if (tanqueSeleccionado != nullptr && !esperandoDestino) {
+            if (tanqueSeleccionado->enMovimiento()) {
+                tanqueSeleccionado->paso();
+            }
+            else {
+                turnos.completarTurno();
+                turnos.siguienteTurno();
+                tanqueSeleccionado = nullptr;
+                esperandoDestino = false;
             }
         }
-        if (destino == -1) { std::cout << "No hay destino disponible" << std::endl; continue; }
 
-        std::cout << "Mov " << mov + 1 << ": " << origen << " -> " << destino << std::endl;
-        tanque1->mover_tanque(destino);
-        while (tanque1->enMovimiento()) tanque1->paso();
-        std::cout << "  Llego a: " << tanque1->getNodoActual() << std::endl;
-    }
+        // Eventos
+        while (const std::optional event = renderer.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                renderer.close();
+            }
 
-    // Test Jugador2 (Azul/Celeste - BFS 50% / Aleatorio 50%)
-    std::cout << "\nJugador2: 20 movimientos " << std::endl;
-    Tanque* tanque2 = jugador2.getTanque(0);
+            if (event->is<sf::Event::MouseButtonPressed>()) {
+                auto* mb = event->getIf<sf::Event::MouseButtonPressed>();
+                int mouseX = mb->position.x;
+                int mouseY = mb->position.y;
+                int col = mouseX / 64;
+                int row = mouseY / 64;
+                int nodoClick = row * 20 + col;
 
-    for (int mov = 0; mov < 20; mov++) {
-        int origen = tanque2->getNodoActual();
-        int destino = -1;
-        for (int intento = 0; intento < 1000; intento++) {
-            int candidato = rand() % 400;
-            if (mapa.disponible(candidato) && candidato != origen) {
-                destino = candidato;
-                break;
+                std::cout << "Click en pixel (" << mouseX << "," << mouseY << ") -> nodo " << nodoClick << std::endl;
+
+                if (mb->button == sf::Mouse::Button::Left) {
+                    Jugador* activo = turnos.getJugadorActivo();
+
+                    if (tanqueSeleccionado == nullptr) {
+                        // Primer click: seleccionar tanque
+                        for (int i = 0; i < 4; i++) {
+                            Tanque* t = activo->getTanque(i);
+                            if (t != nullptr && t->getNodoActual() == nodoClick) {
+                                tanqueSeleccionado = t;
+                                esperandoDestino = true;
+                                std::cout << "Tanque seleccionado en nodo " << nodoClick << std::endl;
+                                break;
+                            }
+                        }
+                        if (tanqueSeleccionado == nullptr)
+                            std::cout << "Ningun tanque en ese nodo" << std::endl;
+
+                    }
+                    else if (esperandoDestino) {
+                        // Segundo click: destino
+                        if (nodoClick >= 0 && nodoClick < 400 && mapa.disponible(nodoClick)) {
+                            tanqueSeleccionado->mover_tanque(nodoClick);
+                            esperandoDestino = false;
+                            std::cout << "Moviendo a nodo " << nodoClick << std::endl;
+                        }
+                        else {
+                            std::cout << "Destino invalido o bloqueado" << std::endl;
+                        }
+                    }
+                }
             }
         }
-        if (destino == -1) { std::cout << "No hay destino disponible" << std::endl; continue; }
 
-        std::cout << "Mov " << mov + 1 << ": " << origen << " -> " << destino << std::endl;
-        tanque2->mover_tanque(destino);
-        while (tanque2->enMovimiento()) tanque2->paso();
-        std::cout << "  Llego a: " << tanque2->getNodoActual() << std::endl;
+        renderer.render();
     }
-
 
     return 0;
 }

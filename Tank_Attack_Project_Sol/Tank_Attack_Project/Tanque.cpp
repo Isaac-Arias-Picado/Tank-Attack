@@ -3,6 +3,7 @@
 #include "Node.h" 
 #include <cstdlib>
 #include "Jugador.h"
+#include <iostream>
 
 Tanque::Tanque(int jugador, char color, int nodo, Graph * grafo, Jugador* objjugador){
 	this->jugador = jugador;
@@ -24,16 +25,24 @@ void Tanque::mover_tanque(int nuevaCasilla) {
     int roll = rand() % 100;
 
     if (color == 'A' || color == 'C') {        // Azul/Celeste: 50/50
-        if (roll < 50)
+        if (roll < 50) {
             pathActual = bfs(grafo, nodoActual, nuevaCasilla);
-        else
+            std::cout << "Tanque " << color << " usando BFS" << std::endl;
+        }
+        else {
             pathActual = movimientoAleatorio(grafo, nodoActual, nuevaCasilla);
+            std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
+        }
     }
     else {                                    // Amarillo/Rojo: 80/20
-        if (roll < 80)
+        if (roll < 80) {
             pathActual = dijkstra(grafo, nodoActual, nuevaCasilla);
-        else
+            std::cout << "Tanque " << color << " usando Dijkstra" << std::endl;
+        }
+        else {
             pathActual = movimientoAleatorio(grafo, nodoActual, nuevaCasilla);
+            std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
+        }
     }
 }
 
