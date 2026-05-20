@@ -21,109 +21,166 @@ Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph
     else if (colDestino < colOrigen) direccionColumna = -1;
     else direccionColumna = 0;
     pathActual = movimientoBala(grafo, nodoOrigen, nodoDestino);
+    activo = true;
+    grafo->getNodo(nodoActual)->setObjeto(this);
+    activo = true;
+    Node* nodoInicial = grafo->getNodo(nodoActual);
+    if (nodoInicial != nullptr && nodoInicial->getObjeto() == nullptr) {
+        nodoInicial->setObjeto(this);
+    }
 }
 
 void Bala::mover_bala() {
-    if (pathActual.indiceActual >= pathActual.longitud) {
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
+    if (!activo) return;
+
+    if (pathActual.longitud == 0 || pathActual.indiceActual >= pathActual.longitud) {
+        // Limpiar nodo actual
+        Node* nodoActualPtr = grafo->getNodo(nodoActual);
+        if (nodoActualPtr != nullptr) {
+            Object* objActual = nodoActualPtr->getObjeto();
+            if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
+                nodoActualPtr->setObjeto(nullptr);
+        }
         activo = false;
         return;
     }
 
     int siguiente = pathActual.nodos[pathActual.indiceActual];
+
+    // Validar indice
+    if (siguiente < 0 || siguiente >= grafo->getN()) {
+        activo = false;
+        return;
+    }
+
     Node* nodoSiguiente = grafo->getNodo(siguiente);
     if (nodoSiguiente == nullptr) {
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
         activo = false;
         return;
     }
 
     Object* obj = nodoSiguiente->getObjeto();
     if (obj != nullptr) {
-        if (strcmp(obj->getTipo(), "Tanque") == 0) {
+        const char* tipo = obj->getTipo();
+        if (tipo != nullptr && strcmp(tipo, "Tanque") == 0) {
             impacto();
-            return; 
+            return;
         }
-        else if (strcmp(obj->getTipo(), "Obstaculo") == 0) {
+        else if (tipo != nullptr && strcmp(tipo, "Obstaculo") == 0) {
             rebotar();
-            return; 
+            return;
+        }
+        else if (tipo != nullptr && strcmp(tipo, "Bala") == 0) {
+            // Ignorar otras balas, avanzar igual
         }
     }
-    else {
-        Node* nodoActualPtr = grafo->getNodo(nodoActual);
-        if (nodoActualPtr != nullptr) nodoActualPtr->setObjeto(nullptr);
-        nodoActual = siguiente;
-        Node* nodoNuevoPtr = grafo->getNodo(nodoActual);
-        if (nodoNuevoPtr != nullptr) nodoNuevoPtr->setObjeto(this);
-        pathActual.indiceActual++;
+
+    // Mover bala: limpiar nodo actual solo si la bala lo ocupa
+    Node* nodoActualPtr = grafo->getNodo(nodoActual);
+    if (nodoActualPtr != nullptr) {
+        Object* objActual = nodoActualPtr->getObjeto();
+        if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
+            nodoActualPtr->setObjeto(nullptr);
     }
+
+    nodoActual = siguiente;
+
+    // Ocupar nuevo nodo solo si está libre
+    if (nodoSiguiente->getObjeto() == nullptr)
+        nodoSiguiente->setObjeto(this);
+
+    pathActual.indiceActual++;
 }
 
 void Bala::rebotar() {
+    // Limpiar nodo actual
+    Node* nodoActualPtr = grafo->getNodo(nodoActual);
+    if (nodoActualPtr != nullptr) {
+        Object* objActual = nodoActualPtr->getObjeto();
+        if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
+            nodoActualPtr->setObjeto(nullptr);
+    }
+
     if (rebotes <= 0) {
         activo = false;
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
         return;
     }
     rebotes--;
+
+    if (pathActual.indiceActual >= pathActual.longitud) {
+        activo = false;
+        return;
+    }
+
     int siguiente = pathActual.nodos[pathActual.indiceActual];
     int ancho = grafo->getAncho();
+    int largo = grafo->getLargo();
     int filaActual = nodoActual / ancho;
     int colActual = nodoActual % ancho;
     int filaSiguiente = siguiente / ancho;
     int colSiguiente = siguiente % ancho;
+
     if (filaActual != filaSiguiente) direccionFila *= -1;
-    if (colActual != colSiguiente) direccionColumna *= -1;
+    if (colActual != colSiguiente)  direccionColumna *= -1;
+
     int filaTemp = filaActual + direccionFila;
     int colTemp = colActual + direccionColumna;
-    int largo = grafo->getLargo();
+
     while (filaTemp >= 0 && filaTemp < largo && colTemp >= 0 && colTemp < ancho) {
         int nodoTemp = filaTemp * ancho + colTemp;
         if (!grafo->disponible(nodoTemp)) break;
         filaTemp += direccionFila;
         colTemp += direccionColumna;
     }
-    int nuevoDestino = (filaTemp - direccionFila) * ancho + (colTemp - direccionColumna);
-    pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
-}
 
-void Bala::impacto() {
-    if (pathActual.indiceActual < 0 || pathActual.indiceActual >= pathActual.longitud) {
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
+    // Asegurar que nuevoDestino es válido
+    int nuevaFila = filaTemp - direccionFila;
+    int nuevaCol = colTemp - direccionColumna;
+    if (nuevaFila < 0) nuevaFila = 0;
+    if (nuevaFila >= largo) nuevaFila = largo - 1;
+    if (nuevaCol < 0) nuevaCol = 0;
+    if (nuevaCol >= ancho) nuevaCol = ancho - 1;
+
+    int nuevoDestino = nuevaFila * ancho + nuevaCol;
+    if (nuevoDestino == nodoActual) {
         activo = false;
         return;
     }
 
-    Node* nodoImp = grafo->getNodo(pathActual.nodos[pathActual.indiceActual]);
+    pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
+}
+
+void Bala::impacto() {
+    // Limpiar nodo actual
+    Node* nodoActualPtr = grafo->getNodo(nodoActual);
+    if (nodoActualPtr != nullptr) {
+        Object* objActual = nodoActualPtr->getObjeto();
+        if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
+            nodoActualPtr->setObjeto(nullptr);
+    }
+
+    if (pathActual.indiceActual < 0 || pathActual.indiceActual >= pathActual.longitud) {
+        activo = false;
+        return;
+    }
+
+    int nodoImpId = pathActual.nodos[pathActual.indiceActual];
+    Node* nodoImp = grafo->getNodo(nodoImpId);
     if (nodoImp == nullptr) {
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
         activo = false;
         return;
     }
 
     Object* obj = nodoImp->getObjeto();
     if (obj != nullptr && strcmp(obj->getTipo(), "Tanque") == 0) {
-        Tanque* tanque = (Tanque*)obj;
-        if (poderAtaque) {
+        Tanque* tanque = static_cast<Tanque*>(obj);
+        if (poderAtaque)
             tanque->recibirdanhototal();
-        }
-        else {
+        else
             tanque->recibirdanho();
-        }
-        activo = false;
-        if (grafo->getNodo(nodoActual) != nullptr)
-            grafo->getNodo(nodoActual)->setObjeto(nullptr);
-        return;
     }
-    if (grafo->getNodo(nodoActual) != nullptr)
-        grafo->getNodo(nodoActual)->setObjeto(nullptr);
+
     activo = false;
-    return;
 }
 
 const char* Bala::getTipo() const {

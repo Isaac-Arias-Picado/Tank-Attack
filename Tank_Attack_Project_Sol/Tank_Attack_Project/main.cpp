@@ -7,6 +7,9 @@
 #include "Renderer.h"
 #include "SistemaTurnos.h"
 #include "Tanque.h"
+#include "Bala.h"
+
+const int MAX_BALAS = 20;
 
 int main() {
     srand(time(NULL));
@@ -25,6 +28,10 @@ int main() {
 
     Tanque* tanqueSeleccionado = nullptr;
     bool esperandoDestino = false;
+    bool esperandoDisparoDestino = false;
+
+    Bala* balas[MAX_BALAS] = {};
+    int numBalas = 0;
 
     while (renderer.isOpen()) {
         // Verificar victoria
@@ -34,11 +41,11 @@ int main() {
             break;
         }
 
-        // Actualizar HUD con el jugador activo
+        // Actualizar HUD
         renderer.updateTurnDisplay(turnos.getJugadorActivo());
 
-        // Avanzar movimiento
-        if (tanqueSeleccionado != nullptr && !esperandoDestino) {
+        // Avanzar movimiento del tanque
+        if (tanqueSeleccionado != nullptr && !esperandoDestino && !esperandoDisparoDestino) {
             if (tanqueSeleccionado->enMovimiento()) {
                 tanqueSeleccionado->paso();
             }
@@ -64,29 +71,26 @@ int main() {
                 int row = mouseY / 64;
                 int nodoClick = row * 20 + col;
 
-                std::cout << "Click en pixel (" << mouseX << "," << mouseY << ") -> nodo " << nodoClick << std::endl;
+                if (nodoClick < 0 || nodoClick >= 400) continue;
 
+                Jugador* activo = turnos.getJugadorActivo();
+
+                // Click izquierdo: seleccionar y mover
                 if (mb->button == sf::Mouse::Button::Left) {
-                    Jugador* activo = turnos.getJugadorActivo();
-
                     if (tanqueSeleccionado == nullptr) {
-                        // Primer click: seleccionar tanque
                         for (int i = 0; i < 4; i++) {
                             Tanque* t = activo->getTanque(i);
                             if (t != nullptr && t->getNodoActual() == nodoClick) {
                                 tanqueSeleccionado = t;
                                 esperandoDestino = true;
+                                esperandoDisparoDestino = false;
                                 std::cout << "Tanque seleccionado en nodo " << nodoClick << std::endl;
                                 break;
                             }
                         }
-                        if (tanqueSeleccionado == nullptr)
-                            std::cout << "Ningun tanque en ese nodo" << std::endl;
-
                     }
                     else if (esperandoDestino) {
-                        // Segundo click: destino
-                        if (nodoClick >= 0 && nodoClick < 400 && mapa.disponible(nodoClick)) {
+                        if (mapa.disponible(nodoClick)) {
                             tanqueSeleccionado->mover_tanque(nodoClick);
                             esperandoDestino = false;
                             std::cout << "Moviendo a nodo " << nodoClick << std::endl;
@@ -96,10 +100,77 @@ int main() {
                         }
                     }
                 }
+
+                // Click derecho: disparar
+                if (mb->button == sf::Mouse::Button::Right) {
+                    std::cout << "Click derecho en nodo " << nodoClick << std::endl;
+                    if (tanqueSeleccionado == nullptr) {
+                        for (int i = 0; i < 4; i++) {
+                            Tanque* t = activo->getTanque(i);
+                            if (t != nullptr && t->getNodoActual() == nodoClick) {
+                                tanqueSeleccionado = t;
+                                esperandoDisparoDestino = true;
+                                esperandoDestino = false;
+                                std::cout << "Tanque seleccionado para disparar en nodo " << nodoClick << std::endl;
+                                break;
+                            }
+                        }
+                    }
+                    else if (esperandoDisparoDestino) {
+                        if (numBalas < MAX_BALAS) {
+                            int nodoTanque = tanqueSeleccionado->getNodoActual();
+                            int ancho = mapa.getAncho();
+                            int fila = nodoTanque / ancho;
+                            int col = nodoTanque % ancho;
+                            int filaDestino = nodoClick / ancho;
+                            int colDestino = nodoClick % ancho;
+
+                            // Calcular nodo adyacente en dirección al destino
+                            int df = 0, dc = 0;
+                            if (filaDestino > fila) df = 1;
+                            else if (filaDestino < fila) df = -1;
+                            else if (colDestino > col) dc = 1;
+                            else if (colDestino < col) dc = -1;
+
+                            int nodoOrigen = (fila + df) * ancho + (col + dc);
+
+                            // Verificar que el nodo origen es válido y está libre
+                            if (nodoOrigen >= 0 && nodoOrigen < 400 && mapa.disponible(nodoOrigen)) {
+                                Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), false, &mapa);
+                                balas[numBalas++] = bala;
+                                std::cout << "Disparo desde nodo " << nodoOrigen << " a " << nodoClick << std::endl;
+                            }
+                            else {
+                                std::cout << "No hay espacio para disparar en esa direccion" << std::endl;
+                            }
+                        }
+                        esperandoDisparoDestino = false;
+                        tanqueSeleccionado = nullptr;
+                        turnos.completarTurno();
+                        turnos.siguienteTurno();
+                    }
+                }
             }
         }
 
+        // Renderizar
         renderer.render();
+
+        // Avanzar balas despues de renderizar
+        for (int i = 0; i < numBalas; i++) {
+            if (balas[i] != nullptr && balas[i]->estaActivo()) {
+                balas[i]->mover_bala();
+            }
+            else if (balas[i] != nullptr && !balas[i]->estaActivo()) {
+                delete balas[i];
+                balas[i] = nullptr;
+            }
+        }
+    }
+
+    // Limpiar balas
+    for (int i = 0; i < MAX_BALAS; i++) {
+        if (balas[i] != nullptr) delete balas[i];
     }
 
     return 0;

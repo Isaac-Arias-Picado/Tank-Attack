@@ -1,7 +1,9 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <optional>
 #include "Graph.h"
 #include "Jugador.h"
+#include "Bala.h"
 
 #define CELL_SIZE 64
 #define ROWS 20
@@ -20,10 +22,11 @@ private:
     sf::Texture textureTank2;
     sf::Texture textureTank3;
     sf::Texture textureTank4;
+    sf::Texture textureBala;
 
     sf::Font font;
     bool fontLoaded;
-    sf::Text* turnoTexto;      
+    sf::Text* turnoTexto;
     sf::Text* infoTanquesTexto;
     sf::RectangleShape hudFondo;
 
@@ -42,4 +45,5 @@ public:
     void close();
     bool isOpen() const;
     void handleEvents();
+    sf::Vector2u getWindowSize() const { return window.getSize(); }
 };

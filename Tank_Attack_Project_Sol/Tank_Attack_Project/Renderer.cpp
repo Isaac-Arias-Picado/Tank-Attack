@@ -146,6 +146,10 @@ bool Renderer::init() {
         std::cerr << "Error cargando tank4-export1.png" << std::endl;
         return false;
     }
+    if (!textureBala.loadFromFile("bala.png")) {
+        std::cerr << "Error cargando bala.png" << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -173,6 +177,7 @@ void Renderer::render() {
         if (obj == nullptr) continue;
 
         const char* tipo = obj->getTipo();
+        if (tipo == nullptr) continue;
 
         if (strcmp(tipo, "Obstaculo") == 0) {
             sf::Sprite spriteCrate(textureCrate);
@@ -180,6 +185,13 @@ void Renderer::render() {
             spriteCrate.setScale(sf::Vector2f((float)CELL_SIZE / size.x, (float)CELL_SIZE / size.y));
             spriteCrate.setPosition(sf::Vector2f(x, y));
             window.draw(spriteCrate);
+        }
+        else if (strcmp(tipo, "Bala") == 0) {
+            sf::Sprite spriteBala(textureBala);
+            sf::Vector2u size = textureBala.getSize();
+            spriteBala.setScale(sf::Vector2f((float)CELL_SIZE / size.x, (float)CELL_SIZE / size.y));
+            spriteBala.setPosition(sf::Vector2f(x, y));
+            window.draw(spriteBala);
         }
         else if (strcmp(tipo, "Tanque") == 0) {
             Tanque* t = static_cast<Tanque*>(obj);

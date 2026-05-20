@@ -1,3 +1,4 @@
+#pragma once
 #include "Object.h"
 #include "Pathfinding.h"
 #include "Graph.h"
@@ -10,6 +11,7 @@ private:
     int jugador;
     bool poderAtaque;
     int rebotes;
+    bool activo;
     Graph* grafo;
     int direccionFila;
     int direccionColumna;
@@ -20,5 +22,6 @@ public:
     void mover_bala();
     void rebotar();
     void impacto();
+    bool estaActivo() const { return activo; }
     const char* getTipo() const override;
 };
