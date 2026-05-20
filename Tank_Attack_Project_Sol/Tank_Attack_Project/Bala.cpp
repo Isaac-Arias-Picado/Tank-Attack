@@ -2,7 +2,8 @@
 #include "Tanque.h"
 #include <cstring>
 
-Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo) {
+Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque){
+    this->precisionAtaque = precisionAtaque;
     this->nodoActual = nodoOrigen;
     this->nodoDestino = nodoDestino;
     this->jugador = jugador;
@@ -27,6 +28,12 @@ Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph
     Node* nodoInicial = grafo->getNodo(nodoActual);
     if (nodoInicial != nullptr && nodoInicial->getObjeto() == nullptr) {
         nodoInicial->setObjeto(this);
+    }
+    if (precisionAtaque) {
+        pathActual = AAsterisco(grafo, nodoOrigen, nodoDestino);
+    }
+    else {
+        pathActual = movimientoBala(grafo, nodoOrigen, nodoDestino);
     }
 }
 

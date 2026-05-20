@@ -1,5 +1,7 @@
 #include "SistemaTurnos.h"
 #include "Jugador.h"
+#include "Powerup.h"
+#include "Cola.h"
 
 SistemaTurnos::SistemaTurnos(Jugador* j1,Jugador* j2) {
 	jugadores[0] = j1;
@@ -16,14 +18,16 @@ void SistemaTurnos::siguienteTurno() {
 			turnosExtra--;
 		}
 		else {
-			if (jugadorActivo == 0) {
-				jugadorActivo = 1;
-			}
-			else {
-				jugadorActivo = 0;
-			}
+			if (jugadorActivo == 0) jugadorActivo = 1;
+			else jugadorActivo = 0;
 		}
 		turnoCompletado = false;
+
+		Jugador* actual = getJugadorActivo();
+		if (actual->getPowerupPendiente() != nullptr) {
+			actual->getPowerupPendiente()->aplicar(actual);
+			actual->setPowerupPendiente(nullptr);
+		}
 	}
 }
 
@@ -59,6 +63,21 @@ Jugador* SistemaTurnos::getJugadorActivo() {
 	else {
 		return jugadores[1];
 	}
+}
+
+void SistemaTurnos::generarPowerupAleatorio() {
+	int jugador = rand() % 2;
+	int tipo = rand() % 4;
+	Powerup* p = nullptr;
+	if (tipo == 0) p = new DobleTurno(this);
+	else if (tipo == 1) p = new PrecisionMovimiento(this);
+	else if (tipo == 2) p = new PrecisionAtaque(this);
+	else p = new PoderAtaque(this);
+	jugadores[jugador]->getCola()->Enlistar(p);
+}
+
+void SistemaTurnos::agregarTurnoExtra() {
+	turnosExtra++;
 }
 
 

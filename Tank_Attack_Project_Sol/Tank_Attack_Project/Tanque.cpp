@@ -23,9 +23,16 @@ void Tanque::mover_tanque(int nuevaCasilla) {
     if (!grafo->disponible(nuevaCasilla)) return;
 
     int roll = rand() % 100;
+    int prob;
 
-    if (color == 'A' || color == 'C') {        // Azul/Celeste: 50/50
-        if (roll < 50) {
+    if (color == 'A' || color == 'C') {
+        if (objjugador->getPrecisionMovimiento()) {
+            prob = 90;
+        }
+        else {
+            prob = 50;
+        }
+        if (roll < prob) {
             pathActual = bfs(grafo, nodoActual, nuevaCasilla);
             std::cout << "Tanque " << color << " usando BFS" << std::endl;
         }
@@ -34,8 +41,14 @@ void Tanque::mover_tanque(int nuevaCasilla) {
             std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
         }
     }
-    else {                                    // Amarillo/Rojo: 80/20
-        if (roll < 80) {
+    else {
+        if (objjugador->getPrecisionMovimiento()) {
+            prob = 90;
+        }
+        else {
+            prob = 80;
+        }
+        if (roll < prob) {
             pathActual = dijkstra(grafo, nodoActual, nuevaCasilla);
             std::cout << "Tanque " << color << " usando Dijkstra" << std::endl;
         }
@@ -44,6 +57,7 @@ void Tanque::mover_tanque(int nuevaCasilla) {
             std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
         }
     }
+    objjugador->setPrecisionMovimiento(false);
 }
 
 void Tanque::paso() {

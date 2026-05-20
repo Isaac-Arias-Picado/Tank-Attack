@@ -8,6 +8,8 @@
 #include "SistemaTurnos.h"
 #include "Tanque.h"
 #include "Bala.h"
+#include "Cola.h"
+#include "Powerup.h"
 
 const int MAX_BALAS = 20;
 
@@ -23,6 +25,12 @@ int main() {
     mapa.generarObstaculos(50);
 
     SistemaTurnos turnos(&jugador1, &jugador2);
+    //Pruebas
+    jugador1.getCola()->Enlistar(new DobleTurno(&turnos));
+    jugador1.getCola()->Enlistar(new PoderAtaque(&turnos));
+    jugador2.getCola()->Enlistar(new PrecisionMovimiento(&turnos));
+    jugador2.getCola()->Enlistar(new PrecisionAtaque(&turnos));
+    //
     Renderer renderer(&mapa, &jugador1, &jugador2);
     if (!renderer.init()) return -1;
 
@@ -32,6 +40,9 @@ int main() {
 
     Bala* balas[MAX_BALAS] = {};
     int numBalas = 0;
+
+    int turnosParaPowerup = rand() % 6 + 4;
+    int contadorTurnos = 0;
 
     while (renderer.isOpen()) {
         // Verificar victoria
@@ -52,6 +63,12 @@ int main() {
             else {
                 turnos.completarTurno();
                 turnos.siguienteTurno();
+                contadorTurnos++;
+                if (contadorTurnos >= turnosParaPowerup) {
+                    turnos.generarPowerupAleatorio();
+                    contadorTurnos = 0;
+                    turnosParaPowerup = rand() % 5 + 2;
+                }
                 tanqueSeleccionado = nullptr;
                 esperandoDestino = false;
             }
@@ -77,19 +94,19 @@ int main() {
 
                 // Click izquierdo: seleccionar y mover
                 if (mb->button == sf::Mouse::Button::Left) {
-                    if (tanqueSeleccionado == nullptr) {
+                    bool tanqueEncontrado = false;
                         for (int i = 0; i < 4; i++) {
                             Tanque* t = activo->getTanque(i);
                             if (t != nullptr && t->getNodoActual() == nodoClick) {
                                 tanqueSeleccionado = t;
                                 esperandoDestino = true;
                                 esperandoDisparoDestino = false;
+                                tanqueEncontrado = true;
                                 std::cout << "Tanque seleccionado en nodo " << nodoClick << std::endl;
                                 break;
                             }
                         }
-                    }
-                    else if (esperandoDestino) {
+                    if (!tanqueEncontrado && esperandoDestino) {
                         if (mapa.disponible(nodoClick)) {
                             tanqueSeleccionado->mover_tanque(nodoClick);
                             esperandoDestino = false;
@@ -104,19 +121,20 @@ int main() {
                 // Click derecho: disparar
                 if (mb->button == sf::Mouse::Button::Right) {
                     std::cout << "Click derecho en nodo " << nodoClick << std::endl;
-                    if (tanqueSeleccionado == nullptr) {
+                    bool tanqueEncontrado = false;
                         for (int i = 0; i < 4; i++) {
                             Tanque* t = activo->getTanque(i);
                             if (t != nullptr && t->getNodoActual() == nodoClick) {
                                 tanqueSeleccionado = t;
                                 esperandoDisparoDestino = true;
                                 esperandoDestino = false;
+                                tanqueEncontrado = true;
                                 std::cout << "Tanque seleccionado para disparar en nodo " << nodoClick << std::endl;
                                 break;
                             }
                         }
-                    }
-                    else if (esperandoDisparoDestino) {
+
+                    if (!tanqueEncontrado && esperandoDisparoDestino) {
                         if (numBalas < MAX_BALAS) {
                             int nodoTanque = tanqueSeleccionado->getNodoActual();
                             int ancho = mapa.getAncho();
@@ -136,7 +154,11 @@ int main() {
 
                             // Verificar que el nodo origen es válido y está libre
                             if (nodoOrigen >= 0 && nodoOrigen < 400 && mapa.disponible(nodoOrigen)) {
-                                Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), false, &mapa);
+                                bool poder = activo->getPoderAtaque();
+                                bool precision = activo->getPrecisionAtaque();
+                                Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), poder, &mapa, precision);
+                                activo->setPoderAtaque(false);
+                                activo->setPrecisionAtaque(false);
                                 balas[numBalas++] = bala;
                                 std::cout << "Disparo desde nodo " << nodoOrigen << " a " << nodoClick << std::endl;
                             }
@@ -148,6 +170,33 @@ int main() {
                         tanqueSeleccionado = nullptr;
                         turnos.completarTurno();
                         turnos.siguienteTurno();
+                        contadorTurnos++;
+                        if (contadorTurnos >= turnosParaPowerup) {
+                            turnos.generarPowerupAleatorio();
+                            contadorTurnos = 0;
+                            turnosParaPowerup = rand() % 5 + 2;
+                        }
+                    }
+                }
+            }
+            if (event->is<sf::Event::KeyPressed>()) {
+                auto* kp = event->getIf<sf::Event::KeyPressed>();
+                if (kp->code == sf::Keyboard::Key::LShift || kp->code == sf::Keyboard::Key::RShift) {
+                    Jugador* activo = turnos.getJugadorActivo();
+                    Powerup* p = activo->getCola()->Desenlistar();
+                    if (p != nullptr) {
+                        activo->setPowerupPendiente(p);
+                        tanqueSeleccionado = nullptr;
+                        esperandoDestino = false;
+                        esperandoDisparoDestino = false;
+                        turnos.completarTurno();
+                        turnos.siguienteTurno();
+                        contadorTurnos++;
+                        if (contadorTurnos >= turnosParaPowerup) {
+                            turnos.generarPowerupAleatorio();
+                            contadorTurnos = 0;
+                            turnosParaPowerup = rand() % 5 + 2;
+                        }
                     }
                 }
             }

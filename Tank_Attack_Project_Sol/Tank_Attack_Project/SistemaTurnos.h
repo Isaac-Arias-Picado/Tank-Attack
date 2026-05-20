@@ -17,4 +17,6 @@ public:
     Jugador* verificarVictoria();
     bool tiempoAgotado();
     Jugador* getJugadorActivo();
+    void agregarTurnoExtra();
+    void generarPowerupAleatorio();
 };

@@ -12,13 +12,14 @@ private:
     bool poderAtaque;
     int rebotes;
     bool activo;
+    bool precisionAtaque;
     Graph* grafo;
     int direccionFila;
     int direccionColumna;
     Path pathActual;
 
 public:
-    Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo);
+    Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque);
     void mover_bala();
     void rebotar();
     void impacto();

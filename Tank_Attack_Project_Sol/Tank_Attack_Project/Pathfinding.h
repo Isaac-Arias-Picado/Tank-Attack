@@ -12,5 +12,6 @@ struct Path {
 Path dijkstra(Graph* grafo, int origen, int destino);
 Path bfs(Graph* grafo, int origen, int destino);
 Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio = 5);
+Path AAsterisco(Graph* grafo, int origen, int destino);
 int heuristica(int origen, int destino, int ancho);
 Path movimientoBala(Graph* grafo, int origen, int destino);
