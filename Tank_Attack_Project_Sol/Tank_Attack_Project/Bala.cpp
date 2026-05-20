@@ -1,6 +1,7 @@
 #include "Bala.h"
 #include "Tanque.h"
 #include <cstring>
+#include <iostream>
 
 Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque){
     this->precisionAtaque = precisionAtaque;
@@ -10,6 +11,7 @@ Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph
     this->poderAtaque = poderAtaque;
     this->grafo = grafo;
     rebotes = 3;
+    rebotoReciente = false;
     int ancho = grafo->getAncho();
     int filaOrigen = nodoOrigen / ancho;
     int colOrigen = nodoOrigen % ancho;
@@ -38,6 +40,7 @@ Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph
 }
 
 void Bala::mover_bala() {
+    std::cout << "mover_bala: indiceActual=" << pathActual.indiceActual << " longitud=" << pathActual.longitud << std::endl;
     if (!activo) return;
 
     if (pathActual.longitud == 0 || pathActual.indiceActual >= pathActual.longitud) {
@@ -48,7 +51,7 @@ void Bala::mover_bala() {
             if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
                 nodoActualPtr->setObjeto(nullptr);
         }
-        activo = false;
+        rebotar();
         return;
     }
 
@@ -70,10 +73,12 @@ void Bala::mover_bala() {
     if (obj != nullptr) {
         const char* tipo = obj->getTipo();
         if (tipo != nullptr && strcmp(tipo, "Tanque") == 0) {
-            impacto();
+            // PASAR el id del nodo impactado en lugar de depender de indiceActual
+            impacto(siguiente);
             return;
         }
         else if (tipo != nullptr && strcmp(tipo, "Obstaculo") == 0) {
+            std::cout << "Obstaculo detectado en nodo: " << siguiente << std::endl;
             rebotar();
             return;
         }
@@ -82,7 +87,7 @@ void Bala::mover_bala() {
         }
     }
 
-    // Mover bala: limpiar nodo actual solo si la bala lo ocupa
+    //Limpiar nodo actual solo si la bala lo ocupa
     Node* nodoActualPtr = grafo->getNodo(nodoActual);
     if (nodoActualPtr != nullptr) {
         Object* objActual = nodoActualPtr->getObjeto();
@@ -92,7 +97,7 @@ void Bala::mover_bala() {
 
     nodoActual = siguiente;
 
-    // Ocupar nuevo nodo solo si está libre
+    //Ocupar nuevo nodo solo si está libre
     if (nodoSiguiente->getObjeto() == nullptr)
         nodoSiguiente->setObjeto(this);
 
@@ -112,66 +117,93 @@ void Bala::rebotar() {
         activo = false;
         return;
     }
-    rebotes--;
 
-    if (pathActual.indiceActual >= pathActual.longitud) {
-        activo = false;
-        return;
-    }
-
-    int siguiente = pathActual.nodos[pathActual.indiceActual];
     int ancho = grafo->getAncho();
     int largo = grafo->getLargo();
     int filaActual = nodoActual / ancho;
     int colActual = nodoActual % ancho;
-    int filaSiguiente = siguiente / ancho;
-    int colSiguiente = siguiente % ancho;
 
-    if (filaActual != filaSiguiente) direccionFila *= -1;
-    if (colActual != colSiguiente)  direccionColumna *= -1;
+    if (filaActual == 0 || filaActual == largo - 1) {
+        direccionFila *= -1;
+    }
+    if (colActual == 0 || colActual == ancho - 1) {
+        direccionColumna *= -1;
+    }
+
+    if (pathActual.indiceActual < pathActual.longitud) {
+        int siguiente = pathActual.nodos[pathActual.indiceActual];
+        int filaSiguiente = siguiente / ancho;
+        int colSiguiente = siguiente % ancho;
+        if (filaActual != filaSiguiente) direccionFila *= -1;
+        if (colActual != colSiguiente) direccionColumna *= -1;
+    }
 
     int filaTemp = filaActual + direccionFila;
     int colTemp = colActual + direccionColumna;
 
+    // Cambiado: detenerse si encuentra un objeto; si es un Tanque incluirlo como destino
     while (filaTemp >= 0 && filaTemp < largo && colTemp >= 0 && colTemp < ancho) {
         int nodoTemp = filaTemp * ancho + colTemp;
+        Node* n = grafo->getNodo(nodoTemp);
+        Object* obj = n ? n->getObjeto() : nullptr;
+        if (obj != nullptr) {
+            if (strcmp(obj->getTipo(), "Tanque") == 0) {
+                // incluir el tanque como destino (avanzar una celda más para que luego se reste)
+                filaTemp += direccionFila;
+                colTemp += direccionColumna;
+            }
+            break; // obstáculo u otro objeto, parar
+        }
         if (!grafo->disponible(nodoTemp)) break;
         filaTemp += direccionFila;
         colTemp += direccionColumna;
     }
 
-    // Asegurar que nuevoDestino es válido
     int nuevaFila = filaTemp - direccionFila;
     int nuevaCol = colTemp - direccionColumna;
+
     if (nuevaFila < 0) nuevaFila = 0;
     if (nuevaFila >= largo) nuevaFila = largo - 1;
     if (nuevaCol < 0) nuevaCol = 0;
     if (nuevaCol >= ancho) nuevaCol = ancho - 1;
 
     int nuevoDestino = nuevaFila * ancho + nuevaCol;
+
+    // Si el destino calculado es la misma casilla (obstáculo adyacente), intentar retroceder un paso
+    if (nuevoDestino == nodoActual) {
+        int backFila = filaActual - direccionFila;
+        int backCol = colActual - direccionColumna;
+        if (backFila >= 0 && backFila < largo && backCol >= 0 && backCol < ancho) {
+            int backNodo = backFila * ancho + backCol;
+            if (grafo->disponible(backNodo)) {
+                nuevoDestino = backNodo;
+            }
+        }
+    }
+
+    // Si aun así no hay destino válido, desactivar bala sin consumir rebote
     if (nuevoDestino == nodoActual) {
         activo = false;
         return;
     }
 
+    // Confirmado que hay rebote válido: consumir un rebote
+    rebotes--;
+
     pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
+    rebotoReciente = true;
 }
 
-void Bala::impacto() {
+// Reemplazar implementación de impacto() por esta versión que usa el nodo pasado
+void Bala::impacto(int nodoImpId) {
     // Limpiar nodo actual
-    Node* nodoActualPtr = grafo->getNodo(nodoActual);
-    if (nodoActualPtr != nullptr) {
-        Object* objActual = nodoActualPtr->getObjeto();
+    Node* nodoActualPtr2 = grafo->getNodo(nodoActual);
+    if (nodoActualPtr2 != nullptr) {
+        Object* objActual = nodoActualPtr2->getObjeto();
         if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
-            nodoActualPtr->setObjeto(nullptr);
+            nodoActualPtr2->setObjeto(nullptr);
     }
 
-    if (pathActual.indiceActual < 0 || pathActual.indiceActual >= pathActual.longitud) {
-        activo = false;
-        return;
-    }
-
-    int nodoImpId = pathActual.nodos[pathActual.indiceActual];
     Node* nodoImp = grafo->getNodo(nodoImpId);
     if (nodoImp == nullptr) {
         activo = false;
@@ -190,6 +222,18 @@ void Bala::impacto() {
     activo = false;
 }
 
+Path Bala::getPath() const {   
+    return pathActual;
+}
+
 const char* Bala::getTipo() const {
     return "Bala";
+}
+
+bool Bala::getRebotoReciente() const {
+    return rebotoReciente;
+}
+
+void Bala::setRebotoReciente(bool valor) {
+    rebotoReciente = valor;
 }

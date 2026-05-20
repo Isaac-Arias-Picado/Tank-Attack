@@ -17,12 +17,16 @@ private:
     int direccionFila;
     int direccionColumna;
     Path pathActual;
+    bool rebotoReciente;
 
 public:
     Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque);
     void mover_bala();
     void rebotar();
-    void impacto();
+    void impacto(int nodoImpacto); 
     bool estaActivo() const { return activo; }
     const char* getTipo() const override;
+    Path getPath() const;
+    bool getRebotoReciente() const;
+    void setRebotoReciente(bool valor);
 };

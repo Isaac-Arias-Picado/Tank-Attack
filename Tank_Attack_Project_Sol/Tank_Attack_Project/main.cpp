@@ -41,8 +41,13 @@ int main() {
     Bala* balas[MAX_BALAS] = {};
     int numBalas = 0;
 
-    int turnosParaPowerup = rand() % 6 + 4;
+    int turnosParaPowerup = rand() % 5 + 2;
     int contadorTurnos = 0;
+
+    sf::Clock relojMovimiento;
+    float velocidadTanque = 0.1f;
+    sf::Clock relojBala;
+    float velocidadBala = 0.1f;
 
     while (renderer.isOpen()) {
         // Verificar victoria
@@ -58,7 +63,10 @@ int main() {
         // Avanzar movimiento del tanque
         if (tanqueSeleccionado != nullptr && !esperandoDestino && !esperandoDisparoDestino) {
             if (tanqueSeleccionado->enMovimiento()) {
-                tanqueSeleccionado->paso();
+                if (relojMovimiento.getElapsedTime().asSeconds() > velocidadTanque) {
+                    tanqueSeleccionado->paso();
+                    relojMovimiento.restart();
+                }
             }
             else {
                 turnos.completarTurno();
@@ -82,10 +90,10 @@ int main() {
 
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 auto* mb = event->getIf<sf::Event::MouseButtonPressed>();
-                int mouseX = mb->position.x;
-                int mouseY = mb->position.y;
-                int col = mouseX / 64;
-                int row = mouseY / 64;
+                sf::Vector2i pixelPos(mb->position.x, mb->position.y);
+                sf::Vector2f worldPos = renderer.getWindow().mapPixelToCoords(pixelPos);
+                int col = (int)worldPos.x / 64;
+                int row = (int)worldPos.y / 64;
                 int nodoClick = row * 20 + col;
 
                 if (nodoClick < 0 || nodoClick >= 400) continue;
@@ -109,6 +117,7 @@ int main() {
                     if (!tanqueEncontrado && esperandoDestino) {
                         if (mapa.disponible(nodoClick)) {
                             tanqueSeleccionado->mover_tanque(nodoClick);
+                            renderer.setRutaTanque(tanqueSeleccionado->getPath());
                             esperandoDestino = false;
                             std::cout << "Moviendo a nodo " << nodoClick << std::endl;
                         }
@@ -157,6 +166,7 @@ int main() {
                                 bool poder = activo->getPoderAtaque();
                                 bool precision = activo->getPrecisionAtaque();
                                 Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), poder, &mapa, precision);
+                                renderer.setRutaBala(bala->getPath());
                                 activo->setPoderAtaque(false);
                                 activo->setPrecisionAtaque(false);
                                 balas[numBalas++] = bala;
@@ -208,7 +218,14 @@ int main() {
         // Avanzar balas despues de renderizar
         for (int i = 0; i < numBalas; i++) {
             if (balas[i] != nullptr && balas[i]->estaActivo()) {
-                balas[i]->mover_bala();
+                if (relojBala.getElapsedTime().asSeconds() > velocidadBala) {
+                    balas[i]->mover_bala();
+                    relojBala.restart();
+                    if (balas[i]->getRebotoReciente()) {
+                        renderer.setRutaBala(balas[i]->getPath());
+                        balas[i]->setRebotoReciente(false);
+                    }
+                }
             }
             else if (balas[i] != nullptr && !balas[i]->estaActivo()) {
                 delete balas[i];

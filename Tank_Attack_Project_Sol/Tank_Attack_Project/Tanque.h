@@ -27,4 +27,5 @@ public:
     void recibirdanho();
     void recibirdanhototal();
     char getColor() const { return color; }
+    Path getPath() const { return pathActual; }
 };

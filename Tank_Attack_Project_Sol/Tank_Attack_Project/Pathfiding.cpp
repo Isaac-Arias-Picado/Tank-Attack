@@ -3,6 +3,9 @@
 #include "Cola.h"
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
+#include "Node.h"
+
 
 Path dijkstra(Graph* grafo, int origen, int destino) {
     int n = grafo->getN(); 
@@ -353,7 +356,15 @@ Path movimientoBala(Graph* grafo, int origen, int destino) {
         path.nodos[cont++] = id;
 
         if (filaOrigen == filaDestino && colOrigen == colDestino) break;  // llegamos al destino
-
+        Node* n = grafo->getNodo(id);
+        Object* obj = nullptr;
+        if (n != nullptr) {
+            obj = n->getObjeto();
+        }
+        if (obj != nullptr) {
+            if (strcmp(obj->getTipo(), "Tanque") == 0) break;   // parar en tanque
+            if (strcmp(obj->getTipo(), "Obstaculo") == 0) break; // parar en obstáculo
+        }
         if (error > 0) {
             colOrigen += movCol;
             error -= dify;

@@ -8,8 +8,8 @@
 
 Renderer::Renderer(Graph* grafo, Jugador* j1, Jugador* j2)
     : grafo(grafo), jugador1(j1), jugador2(j2), fontLoaded(false),
-    turnoTexto(nullptr), infoTanquesTexto(nullptr),
-    window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 120) }), "Tank Attack") {
+    turnoTexto(nullptr), infoTanquesTexto(nullptr),mostrarRutaBala(false),mostrarRutaTanque(false),
+    tiempoMostrarRuta(1.0f),window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 120) }), "Tank Attack") {
     window.setFramerateLimit(60);
     initHUD();
 }
@@ -155,6 +155,9 @@ bool Renderer::init() {
 
 void Renderer::render() {
     window.clear(sf::Color::Black);
+    if ((mostrarRutaTanque || mostrarRutaBala) && relojRuta.getElapsedTime().asSeconds() > tiempoMostrarRuta) {
+        limpiarRutas();
+    }
 
     int n = grafo->getN();
     int ancho = grafo->getAncho();
@@ -213,6 +216,32 @@ void Renderer::render() {
         }
     }
 
+    // Dibujar ruta del tanque
+    if (mostrarRutaTanque) {
+        for (int i = 0; i < rutaTanque.longitud; i++) {
+            int id = rutaTanque.nodos[i];
+            int fila = id / ancho;
+            int col = id % ancho;
+            sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+            rect.setPosition(sf::Vector2f(col * CELL_SIZE, fila * CELL_SIZE));
+            rect.setFillColor(sf::Color(255, 255, 0, 80)); //amarillo 
+            window.draw(rect);
+        }
+    }
+
+    // Dibujar ruta de la bala
+    if (mostrarRutaBala) {
+        for (int i = 0; i < rutaBala.longitud; i++) {
+            int id = rutaBala.nodos[i];
+            int fila = id / ancho;
+            int col = id % ancho;
+            sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+            rect.setPosition(sf::Vector2f(col * CELL_SIZE, fila * CELL_SIZE));
+            rect.setFillColor(sf::Color(255, 0, 0, 80)); //rojo 
+            window.draw(rect);
+        }
+    }
+
     drawHUD();
     window.display();
 }
@@ -230,4 +259,21 @@ void Renderer::handleEvents() {
         if (event->is<sf::Event::Closed>())
             window.close();
     }
+}
+
+void Renderer::setRutaTanque(Path p) {
+    rutaTanque = p;
+    mostrarRutaTanque = true;
+    relojRuta.restart();
+}
+
+void Renderer::setRutaBala(Path p) {
+    rutaBala = p;
+    mostrarRutaBala = true;
+    relojRuta.restart();
+}
+
+void Renderer::limpiarRutas() {
+    mostrarRutaTanque = false;
+    mostrarRutaBala = false;
 }
