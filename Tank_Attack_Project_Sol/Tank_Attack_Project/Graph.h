@@ -21,4 +21,5 @@ public:
     int getLargo() const { return largo; }
     void generarObstaculos(int cantidad);
     bool estaConectado();
+
 };

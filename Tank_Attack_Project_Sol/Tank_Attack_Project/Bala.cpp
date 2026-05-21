@@ -73,7 +73,6 @@ void Bala::mover_bala() {
     if (obj != nullptr) {
         const char* tipo = obj->getTipo();
         if (tipo != nullptr && strcmp(tipo, "Tanque") == 0) {
-            // PASAR el id del nodo impactado en lugar de depender de indiceActual
             impacto(siguiente);
             return;
         }
@@ -83,7 +82,6 @@ void Bala::mover_bala() {
             return;
         }
         else if (tipo != nullptr && strcmp(tipo, "Bala") == 0) {
-            // Ignorar otras balas, avanzar igual
         }
     }
 
@@ -169,7 +167,6 @@ void Bala::rebotar() {
 
     int nuevoDestino = nuevaFila * ancho + nuevaCol;
 
-    // Si el destino calculado es la misma casilla (obstáculo adyacente), intentar retroceder un paso
     if (nuevoDestino == nodoActual) {
         int backFila = filaActual - direccionFila;
         int backCol = colActual - direccionColumna;
@@ -181,7 +178,6 @@ void Bala::rebotar() {
         }
     }
 
-    // Si aun así no hay destino válido, desactivar bala sin consumir rebote
     if (nuevoDestino == nodoActual) {
         activo = false;
         return;
@@ -193,8 +189,6 @@ void Bala::rebotar() {
     pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
     rebotoReciente = true;
 }
-
-// Reemplazar implementación de impacto() por esta versión que usa el nodo pasado
 void Bala::impacto(int nodoImpId) {
     // Limpiar nodo actual
     Node* nodoActualPtr2 = grafo->getNodo(nodoActual);

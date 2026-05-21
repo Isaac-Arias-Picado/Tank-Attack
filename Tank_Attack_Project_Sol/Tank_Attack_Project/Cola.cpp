@@ -33,3 +33,17 @@ Powerup* Cola::Desenlistar() {
 	cantnodos--;
 	return powerup;
 }
+
+Powerup* Cola::getPowerup(int indice) {
+	NodoCola* temp = cabeza;
+	for (int i = 0; i < indice; i++) {
+		if (temp == nullptr) return nullptr;
+		temp = temp->siguiente;
+	}
+	if (temp == nullptr) return nullptr;
+	return temp->dato;
+}
+
+int Cola::getCantNodos() {
+	return cantnodos;
+}

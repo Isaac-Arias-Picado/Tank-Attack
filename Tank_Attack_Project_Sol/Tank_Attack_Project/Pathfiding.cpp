@@ -64,7 +64,7 @@ Path dijkstra(Graph* grafo, int origen, int destino) {
         path.nodos[i] = temp[count - 1 - i];
     }
     path.longitud = count;
-    path.indiceActual = 1; // 0 es origen, empezamos en 1
+    path.indiceActual = 1; 
 
     return path;
 }

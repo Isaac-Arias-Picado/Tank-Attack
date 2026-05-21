@@ -5,11 +5,13 @@
 #include <iostream>
 #include <cstring>
 #include <sstream>
+#include "Cola.h"
+#include "Powerup.h"
 
 Renderer::Renderer(Graph* grafo, Jugador* j1, Jugador* j2)
     : grafo(grafo), jugador1(j1), jugador2(j2), fontLoaded(false),
-    turnoTexto(nullptr), infoTanquesTexto(nullptr),mostrarRutaBala(false),mostrarRutaTanque(false),
-    tiempoMostrarRuta(1.0f),window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 120) }), "Tank Attack") {
+    turnoTexto(nullptr), infoTanquesTexto(nullptr), mostrarRutaBala(false), mostrarRutaTanque(false),
+    tiempoMostrarRuta(1.0f), window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 250) }), "Tank Attack") {
     window.setFramerateLimit(60);
     initHUD();
 }
@@ -39,7 +41,7 @@ void Renderer::initHUD() {
         return;
     }
 
-    hudFondo.setSize(sf::Vector2f(static_cast<float>(COLS * CELL_SIZE), 120.0f));
+    hudFondo.setSize(sf::Vector2f(static_cast<float>(COLS * CELL_SIZE), 250.0f));
     hudFondo.setPosition(sf::Vector2f(0.0f, static_cast<float>(ROWS * CELL_SIZE)));
     hudFondo.setFillColor(sf::Color(50, 50, 50, 230));
     hudFondo.setOutlineThickness(2.0f);
@@ -111,6 +113,44 @@ void Renderer::drawHUD() {
     window.draw(hudFondo);
     window.draw(*turnoTexto);
     window.draw(*infoTanquesTexto);
+
+    float baseY = static_cast<float>(ROWS * CELL_SIZE);
+    drawPowerups(jugador1, baseY + 120);
+    drawPowerups(jugador2, baseY + 175);
+}
+
+void Renderer::drawPowerups(Jugador* jugador, float yPos) {
+    if (!fontLoaded) return;
+
+    sf::Text label(font, "PowerUps: ", 16);
+    label.setFillColor(sf::Color::White);
+    label.setPosition(sf::Vector2f(10.0f, yPos));
+    window.draw(label);
+
+    float xPos = 110.0f;
+    for (int i = 0; i < jugador->getCola()->getCantNodos(); i++) {
+        Powerup* p = jugador->getCola()->getPowerup(i);
+        if (p == nullptr) continue;
+
+        sf::Color color = sf::Color::White;
+        std::string abrev = "?";
+        if (strcmp(p->getNombre(), "DobleTurno") == 0) { color = sf::Color::Blue; abrev = "DT"; }
+        else if (strcmp(p->getNombre(), "PrecisionMovimiento") == 0) { color = sf::Color::Green; abrev = "PM"; }
+        else if (strcmp(p->getNombre(), "PrecisionAtaque") == 0) { color = sf::Color(255, 165, 0); abrev = "PA"; }
+        else if (strcmp(p->getNombre(), "PoderAtaque") == 0) { color = sf::Color::Red; abrev = "PO"; }
+
+        sf::RectangleShape rect(sf::Vector2f(40, 22));
+        rect.setFillColor(color);
+        rect.setPosition(sf::Vector2f(xPos, yPos));
+        window.draw(rect);
+
+        sf::Text texto(font, abrev, 14);
+        texto.setFillColor(sf::Color::White);
+        texto.setPosition(sf::Vector2f(xPos + 5, yPos + 3));
+        window.draw(texto);
+
+        xPos += 45.0f;
+    }
 }
 
 std::optional<sf::Event> Renderer::pollEvent() {
@@ -259,6 +299,7 @@ void Renderer::handleEvents() {
         if (event->is<sf::Event::Closed>())
             window.close();
     }
+
 }
 
 void Renderer::setRutaTanque(Path p) {

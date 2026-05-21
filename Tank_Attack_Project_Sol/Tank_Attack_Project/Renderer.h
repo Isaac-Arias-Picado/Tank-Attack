@@ -61,4 +61,5 @@ public:
     void setRutaTanque(Path p);
     void setRutaBala(Path p);
     void limpiarRutas();
+    void drawPowerups(Jugador* jugador, float yPos);
 };

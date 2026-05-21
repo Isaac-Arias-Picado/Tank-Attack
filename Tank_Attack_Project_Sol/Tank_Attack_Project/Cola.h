@@ -1,3 +1,4 @@
+#pragma once
 class Powerup;
 
 struct NodoCola {
@@ -15,4 +16,6 @@ public:
 	Cola();
 	void Enlistar(Powerup* nuevo);
 	Powerup* Desenlistar();
+	Powerup* getPowerup(int indice);
+	int getCantNodos();
 };
