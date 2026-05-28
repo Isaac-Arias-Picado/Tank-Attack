@@ -198,27 +198,56 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
     int filaO = origen / ancho, colO = origen % ancho;
     int filaD = destino / ancho, colD = destino % ancho;
 
-    // Solo funciona en linea recta ortogonal
-    if (filaO != filaD && colO != colD) return false;
-
-    if (filaO == filaD) {
-        int minCol = (colO < colD) ? colO : colD;
-        int maxCol = (colO > colD) ? colO : colD;
-        for (int c = minCol + 1; c < maxCol; c++) {
-            int nodo = filaO * ancho + c;
-            if (!grafo->disponible(nodo)) return false;
+    if (filaO != filaD && colO != colD) {
+        // Diagonal: verificar ambos caminos ortogonales, retornar true si alguno esta libre
+        // Camino 1: horizontal primero
+        bool libreH = true;
+        int c = colO;
+        int paso = (colD > colO) ? 1 : -1;
+        for (c = colO + paso; c != colD + paso; c += paso) {
+            if (!grafo->disponible(filaO * ancho + c)) { libreH = false; break; }
         }
+        if (libreH) {
+            int f;
+            int pasoF = (filaD > filaO) ? 1 : -1;
+            for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
+                if (!grafo->disponible(f * ancho + colD)) { libreH = false; break; }
+            }
+        }
+        if (libreH) return true;
+
+        // Camino 2: vertical primero
+        bool libreV = true;
+        int pasoF = (filaD > filaO) ? 1 : -1;
+        int f;
+        for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
+            if (!grafo->disponible(f * ancho + colO)) { libreV = false; break; }
+        }
+        if (libreV) {
+            int pasoC = (colD > colO) ? 1 : -1;
+            for (c = colO + pasoC; c != colD + pasoC; c += pasoC) {
+                if (!grafo->disponible(filaD * ancho + c)) { libreV = false; break; }
+            }
+        }
+        return libreV;
+    }
+
+    // Ortogonal
+    if (filaO == filaD) {
+        int min = (colO < colD) ? colO : colD;
+        int max = (colO > colD) ? colO : colD;
+        for (int c = min + 1; c < max; c++)
+            if (!grafo->disponible(filaO * ancho + c)) return false;
     }
     else {
-        int minFila = (filaO < filaD) ? filaO : filaD;
-        int maxFila = (filaO > filaD) ? filaO : filaD;
-        for (int f = minFila + 1; f < maxFila; f++) {
-            int nodo = f * ancho + colO;
-            if (!grafo->disponible(nodo)) return false;
-        }
+        int min = (filaO < filaD) ? filaO : filaD;
+        int max = (filaO > filaD) ? filaO : filaD;
+        for (int f = min + 1; f < max; f++)
+            if (!grafo->disponible(f * ancho + colO)) return false;
     }
     return true;
 }
+
 
 static int nodoAleatorioEnRadio(Graph* grafo, int origen, int radio, int ancho, int largo) {
     int fila = origen / ancho;
@@ -240,54 +269,46 @@ static int nodoAleatorioEnRadio(Graph* grafo, int origen, int radio, int ancho, 
     return origen; // no encontro nada
 }
 static Path avanzarHastaDonde(Graph* grafo, int origen, int destino, int ancho) {
-    int filaO = origen / ancho, colO = origen % ancho;
+    int filaActual = origen / ancho, colActual = origen % ancho;
     int filaD = destino / ancho, colD = destino % ancho;
 
-    int difx = abs(colD - colO);
-    int dify = abs(filaD - filaO);
-    int error = difx - dify;
-    int movCol = (colD > colO) ? 1 : -1;
-    int movFila = (filaD > filaO) ? 1 : -1;
+    int dc = abs(colD - colActual);
+    int df = abs(filaD - filaActual);
+    int movCol = (colD > colActual) ? 1 : -1;
+    int movFila = (filaD > filaActual) ? 1 : -1;
+    int error = dc - df;
 
     Path path;
     int cont = 0;
-    int filaActual = filaO, colActual = colO;
 
     while (true) {
         int id = filaActual * ancho + colActual;
 
-        // Detenerse en obstáculo 
         if (cont > 0 && !grafo->disponible(id)) break;
 
         path.nodos[cont++] = id;
 
         if (filaActual == filaD && colActual == colD) break;
 
-        // Calcular siguiente paso
-        int sigFila = filaActual, sigCol = colActual;
         if (error > 0) {
-            sigCol += movCol;
-            error -= dify;
+            colActual += movCol;
+            error -= df;
         }
         else if (error < 0) {
-            sigFila += movFila;
-            error += difx;
+            filaActual += movFila;
+            error += dc;
         }
         else {
-            // diagonal: elegir horizontal primero para hacer escalera limpia
-            sigCol += movCol;
-            error += difx - dify;
+            // empate: mover col este paso, fila el siguiente
+            colActual += movCol;
+            error -= df;
         }
-
-        filaActual = sigFila;
-        colActual = sigCol;
     }
 
     path.longitud = cont;
     path.indiceActual = 1;
     return path;
 }
-
 Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
     int ancho = grafo->getAncho();
     int largo = grafo->getLargo();
@@ -297,35 +318,21 @@ Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
         return avanzarHastaDonde(grafo, origen, destino, ancho);
     }
 
-    // Intento 2: moverse a nodo aleatorio, luego avanzar desde ahi
+    // Teletransporte a posicion aleatoria en el radio
     int intermedio = nodoAleatorioEnRadio(grafo, origen, radio, ancho, largo);
     if (intermedio == origen) {
-        // No encontro intermedio valido, avanzar desde origen hasta donde se pueda
+        // No encontro intermedio, caminar desde origen hasta donde se pueda
         return avanzarHastaDonde(grafo, origen, destino, ancho);
     }
 
-    Path pathIntermedio = avanzarHastaDonde(grafo, origen, intermedio, ancho);
-    // nodo real donde llego 
-    int llegada = (pathIntermedio.longitud > 0)
-        ? pathIntermedio.nodos[pathIntermedio.longitud - 1]
-        : origen;
+    // Desde el intermedio, caminar en escalera hacia destino
+    Path pathFinal = avanzarHastaDonde(grafo, intermedio, destino, ancho);
 
-    if (llegada == origen) {
-        return avanzarHastaDonde(grafo, origen, destino, ancho);
-    }
-
-    // Segundo intento de linea vista desde donde llego
-    Path pathFinal = avanzarHastaDonde(grafo, llegada, destino, ancho);
-
-    if (pathFinal.longitud <= 1) {
-        // No pudo avanzar desde llegada hacia destino, retornar solo el primer tramo
-        return pathIntermedio;
-    }
-
-    // Concatenar: pathIntermedio + pathFinal[1..] 
+    // Path: origen (nodo actual) + camino desde intermedio
+    // El tanque aparece en intermedio y camina de ahi al destino
     Path resultado;
-    for (int i = 0; i < pathIntermedio.longitud; i++)
-        resultado.nodos[resultado.longitud++] = pathIntermedio.nodos[i];
+    resultado.nodos[resultado.longitud++] = origen;    // posicion inicial
+    resultado.nodos[resultado.longitud++] = intermedio; // salto instantaneo
     for (int i = 1; i < pathFinal.longitud; i++)
         resultado.nodos[resultado.longitud++] = pathFinal.nodos[i];
     resultado.indiceActual = 1;
