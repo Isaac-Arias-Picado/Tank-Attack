@@ -10,7 +10,7 @@
 
 Renderer::Renderer(Graph* grafo, Jugador* j1, Jugador* j2)
     : grafo(grafo), jugador1(j1), jugador2(j2), fontLoaded(false),
-    turnoTexto(nullptr), infoTanquesTexto(nullptr), mostrarRutaBala(false), mostrarRutaTanque(false),
+    turnoTexto(nullptr), infoTanquesTexto(nullptr), mostrarRutaBala(false), mostrarRutaTanque(false), nodoTeletransporte(-1),
     tiempoMostrarRuta(1.0f), window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 250) }), "Tank Attack") {
     window.setFramerateLimit(60);
     initHUD();
@@ -85,7 +85,7 @@ void Renderer::updateHUD(Jugador* jugadorActivo, float tiempoRestante) {
             switch (color) {
             case 'A': ss << "Amarillo "; break;
             case 'C': ss << "Cyan "; break;
-            case 'Z': ss << "Azul "; break;
+            case 'Z': ss << "Morado "; break;
             case 'R': ss << "Rojo "; break;
             default: ss << "? "; break;
             }
@@ -100,7 +100,7 @@ void Renderer::updateHUD(Jugador* jugadorActivo, float tiempoRestante) {
             switch (color) {
             case 'A': ss << "Amarillo "; break;
             case 'C': ss << "Cyan "; break;
-            case 'Z': ss << "Azul "; break;
+            case 'Z': ss << "Morado "; break;
             case 'R': ss << "Rojo "; break;
             default: ss << "? "; break;
             }
@@ -290,7 +290,15 @@ void Renderer::render() {
             window.draw(rect);
         }
     }
-
+    // Dibujar nodo de teletransporte
+    if (nodoTeletransporte != -1) {
+        int fila = nodoTeletransporte / ancho;
+        int col = nodoTeletransporte % ancho;
+        sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+        rect.setPosition(sf::Vector2f(col * CELL_SIZE, fila * CELL_SIZE));
+        rect.setFillColor(sf::Color(0, 100, 255, 120));
+        window.draw(rect);
+    }
     // Dibujar ruta de la bala
     if (mostrarRutaBala) {
         for (int i = 0; i < rutaBala.longitud; i++) {
@@ -392,4 +400,13 @@ void Renderer::setRutaBala(Path p) {
 void Renderer::limpiarRutas() {
     mostrarRutaTanque = false;
     mostrarRutaBala = false;
+    nodoTeletransporte = -1;
+}
+
+void Renderer::setNodoTeleporte(int nodo) {
+    nodoTeletransporte = nodo;
+}
+
+void Renderer::limpiarNodoTeleporte() {
+    nodoTeletransporte = -1;
 }

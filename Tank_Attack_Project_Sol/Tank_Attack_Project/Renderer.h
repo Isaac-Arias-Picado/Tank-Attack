@@ -37,6 +37,7 @@ private:
     Path rutaBala;
     bool mostrarRutaTanque;
     bool mostrarRutaBala;
+    int nodoTeletransporte;
 
     void initHUD();
     void drawHUD();
@@ -62,4 +63,6 @@ public:
     void limpiarRutas();
     void drawPowerups(Jugador* jugador, float yPos);
     void mostrarVictoria(Jugador* ganador);
+    void setNodoTeleporte(int nodo);
+    void limpiarNodoTeleporte();
 };

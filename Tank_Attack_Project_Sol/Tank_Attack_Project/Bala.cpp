@@ -3,34 +3,33 @@
 #include <cstring>
 #include <iostream>
 
-Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque){
+Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque) {
     this->precisionAtaque = precisionAtaque;
     this->nodoActual = nodoOrigen;
-    this->nodoDestino = nodoDestino;
+    this->nodoDestino = nodoDestino; 
     this->jugador = jugador;
     this->poderAtaque = poderAtaque;
     this->grafo = grafo;
     rebotes = 3;
     rebotoReciente = false;
+
     int ancho = grafo->getAncho();
     int filaOrigen = nodoOrigen / ancho;
     int colOrigen = nodoOrigen % ancho;
     int filaDestino = nodoDestino / ancho;
     int colDestino = nodoDestino % ancho;
+
     if (filaDestino > filaOrigen) direccionFila = 1;
     else if (filaDestino < filaOrigen) direccionFila = -1;
     else direccionFila = 0;
+
     if (colDestino > colOrigen) direccionColumna = 1;
     else if (colDestino < colOrigen) direccionColumna = -1;
     else direccionColumna = 0;
-    pathActual = movimientoBala(grafo, nodoOrigen, nodoDestino);
+
     activo = true;
     grafo->getNodo(nodoActual)->setObjeto(this);
-    activo = true;
-    Node* nodoInicial = grafo->getNodo(nodoActual);
-    if (nodoInicial != nullptr && nodoInicial->getObjeto() == nullptr) {
-        nodoInicial->setObjeto(this);
-    }
+
     if (precisionAtaque) {
         pathActual = AAsterisco(grafo, nodoOrigen, nodoDestino);
     }
@@ -51,7 +50,7 @@ void Bala::mover_bala() {
             if (objActual != nullptr && strcmp(objActual->getTipo(), "Bala") == 0)
                 nodoActualPtr->setObjeto(nullptr);
         }
-        rebotar();
+        activo = false;
         return;
     }
 
@@ -121,23 +120,28 @@ void Bala::rebotar() {
     int filaActual = nodoActual / ancho;
     int colActual = nodoActual % ancho;
 
+    bool hitInteriorObj = false;
+
+    // si está en borde del mapa
     if (filaActual == 0 || filaActual == largo - 1) {
         direccionFila *= -1;
     }
-    if (colActual == 0 || colActual == ancho - 1) {
+    else if (colActual == 0 || colActual == ancho - 1) {
         direccionColumna *= -1;
     }
-
-    if (pathActual.indiceActual < pathActual.longitud) {
+    // si chocó con obstáculo interior
+    else if (pathActual.indiceActual < pathActual.longitud) {
         int siguiente = pathActual.nodos[pathActual.indiceActual];
         int filaSiguiente = siguiente / ancho;
         int colSiguiente = siguiente % ancho;
         if (filaActual != filaSiguiente) direccionFila *= -1;
         if (colActual != colSiguiente) direccionColumna *= -1;
     }
-
     int filaTemp = filaActual + direccionFila;
     int colTemp = colActual + direccionColumna;
+
+    std::cout << "filaActual=" << filaActual << " colActual=" << colActual << std::endl;
+    std::cout << "filaTemp inicio=" << filaActual + direccionFila << " colTemp inicio=" << colActual + direccionColumna << std::endl;
 
     // Cambiado: detenerse si encuentra un objeto; si es un Tanque incluirlo como destino
     while (filaTemp >= 0 && filaTemp < largo && colTemp >= 0 && colTemp < ancho) {
@@ -185,7 +189,8 @@ void Bala::rebotar() {
 
     // Confirmado que hay rebote válido: consumir un rebote
     rebotes--;
-
+    std::cout << "nodoActual=" << nodoActual << " nuevoDestino=" << nuevoDestino << std::endl;
+    std::cout << "direccionFila=" << direccionFila << " direccionColumna=" << direccionColumna << std::endl;
     pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
     rebotoReciente = true;
 }

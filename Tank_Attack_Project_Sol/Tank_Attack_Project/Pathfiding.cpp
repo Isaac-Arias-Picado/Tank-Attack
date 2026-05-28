@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include "Node.h"
+#include <iostream>
 
 
 Path dijkstra(Graph* grafo, int origen, int destino) {
@@ -197,10 +198,14 @@ Path bfs(Graph* grafo, int origen, int destino) {
 static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
     int filaO = origen / ancho, colO = origen % ancho;
     int filaD = destino / ancho, colD = destino % ancho;
+    std::cout << "origen fila=" << origen / ancho << " col=" << origen % ancho << std::endl;
+    std::cout << "destino fila=" << destino / ancho << " col=" << destino % ancho << std::endl;
+    if (origen == destino) {
+        return false;
+    }
 
-    if (filaO != filaD && colO != colD) {
-        // Diagonal: verificar ambos caminos ortogonales, retornar true si alguno esta libre
-        // Camino 1: horizontal primero
+    if ( (filaO == filaD) && (colO!= colD)) {
+        std::cout << "Entro" << std::endl;
         bool libreH = true;
         int c = colO;
         int paso = (colD > colO) ? 1 : -1;
@@ -208,6 +213,7 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
             if (!grafo->disponible(filaO * ancho + c)) { libreH = false; break; }
         }
         if (libreH) {
+            std::cout << "Aplicando horizontal" << std::endl;
             int f;
             int pasoF = (filaD > filaO) ? 1 : -1;
             for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
@@ -215,15 +221,18 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
             }
         }
         if (libreH) return true;
+    }
 
-        // Camino 2: vertical primero
+    if ((filaO != filaD) && (colO == colD)) {
         bool libreV = true;
         int pasoF = (filaD > filaO) ? 1 : -1;
+        int c = filaO;
         int f;
         for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
             if (!grafo->disponible(f * ancho + colO)) { libreV = false; break; }
         }
         if (libreV) {
+            std::cout << "Aplicando vertical" << std::endl;
             int pasoC = (colD > colO) ? 1 : -1;
             for (c = colO + pasoC; c != colD + pasoC; c += pasoC) {
                 if (!grafo->disponible(filaD * ancho + c)) { libreV = false; break; }
@@ -233,23 +242,27 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
     }
 
     // Ortogonal
-    if (filaO == filaD) {
-        int min = (colO < colD) ? colO : colD;
-        int max = (colO > colD) ? colO : colD;
-        for (int c = min + 1; c < max; c++)
-            if (!grafo->disponible(filaO * ancho + c)) return false;
+    if (filaO == filaD || colO == colD) {
+        if (filaO == filaD) {
+            int min = (colO < colD) ? colO : colD;
+            int max = (colO > colD) ? colO : colD;
+            for (int c = min + 1; c < max; c++)
+                if (!grafo->disponible(filaO * ancho + c)) return false;
+        }
+        else {
+            int min = (filaO < filaD) ? filaO : filaD;
+            int max = (filaO > filaD) ? filaO : filaD;
+            for (int f = min + 1; f < max; f++)
+                if (!grafo->disponible(f * ancho + colO)) return false;
+        }
+        return true;
     }
-    else {
-        int min = (filaO < filaD) ? filaO : filaD;
-        int max = (filaO > filaD) ? filaO : filaD;
-        for (int f = min + 1; f < max; f++)
-            if (!grafo->disponible(f * ancho + colO)) return false;
-    }
-    return true;
+    return false;
 }
 
 
 static int nodoAleatorioEnRadio(Graph* grafo, int origen, int radio, int ancho, int largo) {
+    std::cout << "Nodo teletrnasportandose" << std::endl;
     int fila = origen / ancho;
     int col = origen % ancho;
 
@@ -266,7 +279,7 @@ static int nodoAleatorioEnRadio(Graph* grafo, int origen, int radio, int ancho, 
         int nodo = nuevaFila * ancho + nuevaCol;
         if (grafo->disponible(nodo)) return nodo;
     }
-    return origen; // no encontro nada
+    return origen; 
 }
 static Path avanzarHastaDonde(Graph* grafo, int origen, int destino, int ancho) {
     int filaActual = origen / ancho, colActual = origen % ancho;
@@ -299,7 +312,6 @@ static Path avanzarHastaDonde(Graph* grafo, int origen, int destino, int ancho) 
             error += dc;
         }
         else {
-            // empate: mover col este paso, fila el siguiente
             colActual += movCol;
             error -= df;
         }
@@ -336,6 +348,8 @@ Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
     for (int i = 1; i < pathFinal.longitud; i++)
         resultado.nodos[resultado.longitud++] = pathFinal.nodos[i];
     resultado.indiceActual = 1;
+    resultado.fueBloqueado = true;
+    resultado.nodoTeletransporte = intermedio;
     return resultado;
 }
 
@@ -392,8 +406,7 @@ Path movimientoBala(Graph* grafo, int origen, int destino) {
         }
         else {
             colOrigen += movCol;
-            filaOrigen += movFila;
-            error += difx - dify;
+            error -= dify;
         }
     }
 

@@ -39,6 +39,12 @@ private:
     sf::Clock relojBala;
     float velocidadBala;
 
+    int estadoMov; 
+    sf::Clock relojEspera;
+    Path rutaParcial;
+    int nodoTeletransporte;
+    Path rutaFinal;
+
     void avanzarTanque();
     void avanzarBalas();
     void procesarEventos();

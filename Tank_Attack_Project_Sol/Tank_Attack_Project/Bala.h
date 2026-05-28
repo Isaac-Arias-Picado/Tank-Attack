@@ -18,6 +18,7 @@ private:
     int direccionColumna;
     Path pathActual;
     bool rebotoReciente;
+    int bloquesRecorridos;
 
 public:
     Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph* grafo, bool precisionAtaque);

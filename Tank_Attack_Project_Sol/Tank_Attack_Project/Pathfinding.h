@@ -5,6 +5,8 @@ struct Path {
     int nodos[400];
     int longitud;
     int indiceActual;
+    bool fueBloqueado;
+    int nodoTeletransporte;
 
     Path() : longitud(0), indiceActual(0) {}
 };

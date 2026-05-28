@@ -15,7 +15,9 @@ Presentador::Presentador()
     numBalas(0),
     contadorTurnos(0),
     velocidadTanque(0.1f),
-    velocidadBala(0.1f)
+    velocidadBala(0.1f),
+    estadoMov(0),
+    nodoTeletransporte(-1)
 {
     for (int i = 0; i < MAX_BALAS; i++) balas[i] = nullptr;
     turnosParaPowerup = rand() % 5 + 2;
@@ -70,16 +72,31 @@ void Presentador::avanzarTurno() {
 void Presentador::avanzarTanque() {
     if (tanqueSeleccionado == nullptr || esperandoDestino || esperandoDisparoDestino) return;
 
-    if (tanqueSeleccionado->enMovimiento()) {
-        if (relojMovimiento.getElapsedTime().asSeconds() > velocidadTanque) {
-            tanqueSeleccionado->paso();
-            relojMovimiento.restart();
+    if (estadoMov == 1) { // Se verifica teletransporte para movimiento aleatorio
+        if (relojEspera.getElapsedTime().asSeconds() >= 0.5f) {
+            estadoMov = 2; // Estado de movimiento
+            renderer.limpiarRutas();
+            renderer.setRutaTanque(rutaFinal);
+            renderer.setNodoTeleporte(nodoTeletransporte);
         }
+        return;
     }
-    else {
-        avanzarTurno();
-        tanqueSeleccionado = nullptr;
-        esperandoDestino = false;
+
+    if (estadoMov == 2) { //Movimiento
+        if (tanqueSeleccionado->enMovimiento()) {
+            if (relojMovimiento.getElapsedTime().asSeconds() > velocidadTanque) {
+                tanqueSeleccionado->paso();
+                relojMovimiento.restart();
+            }
+        }
+        else {
+            avanzarTurno(); //Sino se pasa el turno
+            tanqueSeleccionado = nullptr;
+            esperandoDestino = false;
+            estadoMov = 0; 
+            nodoTeletransporte = -1;
+            renderer.limpiarNodoTeleporte();
+        }
     }
 }
 
@@ -147,8 +164,31 @@ void Presentador::onClickIzquierdo(int nodoClick) {
     if (esperandoDestino) {
         if (mapa.disponible(nodoClick)) {
             tanqueSeleccionado->mover_tanque(nodoClick);
-            renderer.setRutaTanque(tanqueSeleccionado->getPath());
+            Path p = tanqueSeleccionado->getPath();
             esperandoDestino = false;
+
+            if (p.fueBloqueado && p.nodoTeletransporte != -1) {
+                rutaParcial = Path();
+                for (int i = 0; i < p.longitud; i++) {
+                    rutaParcial.nodos[rutaParcial.longitud++] = p.nodos[i];
+                    if (p.nodos[i] == p.nodoTeletransporte) break;
+                }
+                rutaFinal = Path();
+                bool encontrado = false;
+                for (int i = 0; i < p.longitud; i++) {
+                    if (p.nodos[i] == p.nodoTeletransporte) encontrado = true;
+                    if (encontrado) rutaFinal.nodos[rutaFinal.longitud++] = p.nodos[i];
+                }
+                rutaFinal.indiceActual = 1;
+                nodoTeletransporte = p.nodoTeletransporte;
+                renderer.setRutaTanque(rutaParcial);
+                estadoMov = 1;
+                relojEspera.restart();
+            }
+            else {
+                renderer.setRutaTanque(p);
+                estadoMov = 2;
+            }
             std::cout << "Moviendo a nodo " << nodoClick << std::endl;
         }
         else {
@@ -184,12 +224,16 @@ void Presentador::onClickDerecho(int nodoClick) {
             int df = 0, dc = 0;
             if (filaDestino > fila) df = 1;
             else if (filaDestino < fila) df = -1;
-            else if (colDestino > col)  dc = 1;
-            else if (colDestino < col)  dc = -1;
+            if (colDestino > col) dc = 1;
+            else if (colDestino < col) dc = -1;
 
             int nodoOrigen = (fila + df) * ancho + (col + dc);
 
-            if (nodoOrigen >= 0 && nodoOrigen < 400 && mapa.disponible(nodoOrigen)) {
+            Node* nodoOrig = mapa.getNodo(nodoOrigen);
+            Object* obj = nodoOrig ? nodoOrig->getObjeto() : nullptr;
+            bool esObstaculo = obj != nullptr && strcmp(obj->getTipo(), "Obstaculo") == 0;
+
+            if (nodoOrigen >= 0 && nodoOrigen < 400 && !esObstaculo) {
                 bool poder = activo->getPoderAtaque();
                 bool precision = activo->getPrecisionAtaque();
                 Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), poder, &mapa, precision);
@@ -198,14 +242,14 @@ void Presentador::onClickDerecho(int nodoClick) {
                 activo->setPrecisionAtaque(false);
                 balas[numBalas++] = bala;
                 std::cout << "Disparo desde nodo " << nodoOrigen << " a " << nodoClick << std::endl;
+                esperandoDisparoDestino = false;
+                tanqueSeleccionado = nullptr;
+                avanzarTurno();
             }
             else {
                 std::cout << "No hay espacio para disparar en esa direccion" << std::endl;
             }
         }
-        esperandoDisparoDestino = false;
-        tanqueSeleccionado = nullptr;
-        avanzarTurno();
     }
 }
 
