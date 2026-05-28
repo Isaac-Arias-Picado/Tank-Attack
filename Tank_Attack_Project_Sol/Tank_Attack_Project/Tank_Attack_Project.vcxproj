@@ -153,6 +153,7 @@
     <ClCompile Include="Obstaculo.cpp" />
     <ClCompile Include="Pathfiding.cpp" />
     <ClCompile Include="Powerup.cpp" />
+    <ClCompile Include="Presentador.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SistemaTurnos.cpp" />
     <ClCompile Include="Tanque.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Obstaculo.h" />
     <ClInclude Include="Pathfinding.h" />
     <ClInclude Include="Powerup.h" />
+    <ClInclude Include="Presentador.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SistemaTurnos.h" />
     <ClInclude Include="Tanque.h" />

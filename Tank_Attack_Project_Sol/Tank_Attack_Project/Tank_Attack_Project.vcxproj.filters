@@ -19,6 +19,12 @@
     <Filter Include="Interfaces">
       <UniqueIdentifier>{60373d93-049d-4225-959e-ba29e3b5df90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Visual">
+      <UniqueIdentifier>{6292319b-c467-458a-aadd-a91fa7558997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Presentador">
+      <UniqueIdentifier>{1bd553b2-8624-4345-a320-11b1518dd6b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -59,7 +65,10 @@
       <Filter>Modelo</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Modelo</Filter>
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="Presentador.cpp">
+      <Filter>Presentador</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +109,9 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Presentador.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>

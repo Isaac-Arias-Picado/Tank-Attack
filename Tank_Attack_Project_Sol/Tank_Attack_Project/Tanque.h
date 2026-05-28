@@ -28,4 +28,6 @@ public:
     void recibirdanhototal();
     char getColor() const { return color; }
     Path getPath() const { return pathActual; }
+    float getVida() const { return vida; }
+    float getVidaMaxima() const { return vidaMaxima; }
 };

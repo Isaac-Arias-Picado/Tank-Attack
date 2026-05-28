@@ -258,6 +258,23 @@ void Renderer::render() {
                 spriteTanque.setPosition(sf::Vector2f(x, y));
                 window.draw(spriteTanque);
             }
+
+            // Barra de vida
+            float pct = t->getVida() / t->getVidaMaxima();
+            float barW = (float)CELL_SIZE - 4.f;
+            float barH = 5.f;
+            float barX = x + 2.f;
+            float barY = y + CELL_SIZE - barH - 2.f;
+
+            sf::RectangleShape fondo(sf::Vector2f(barW, barH));
+            fondo.setPosition(sf::Vector2f(barX, barY));
+            fondo.setFillColor(sf::Color(80, 0, 0));
+            window.draw(fondo);
+
+            sf::RectangleShape relleno(sf::Vector2f(barW * pct, barH));
+            relleno.setPosition(sf::Vector2f(barX, barY));
+            relleno.setFillColor(pct > 0.5f ? sf::Color(0, 200, 0) : sf::Color(200, 0, 0));
+            window.draw(relleno);
         }
     }
 
