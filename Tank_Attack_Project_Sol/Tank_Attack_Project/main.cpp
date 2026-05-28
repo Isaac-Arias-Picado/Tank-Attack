@@ -52,13 +52,13 @@ int main() {
     while (renderer.isOpen()) {
         // Verificar victoria
         Jugador* ganador = turnos.verificarVictoria();
-        if (ganador != nullptr) {
-            std::cout << "Gano: " << ganador->getNombre() << std::endl;
+        if (ganador != nullptr || turnos.tiempoAgotado()) {
+            renderer.mostrarVictoria(ganador);
             break;
         }
 
         // Actualizar HUD
-        renderer.updateTurnDisplay(turnos.getJugadorActivo());
+        renderer.updateHUD(turnos.getJugadorActivo(), turnos.getTiempoRestante());
 
         // Avanzar movimiento del tanque
         if (tanqueSeleccionado != nullptr && !esperandoDestino && !esperandoDisparoDestino) {

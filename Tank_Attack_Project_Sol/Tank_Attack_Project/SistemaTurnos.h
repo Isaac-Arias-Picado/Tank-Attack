@@ -19,4 +19,5 @@ public:
     Jugador* getJugadorActivo();
     void agregarTurnoExtra();
     void generarPowerupAleatorio();
+    float getTiempoRestante();
 };

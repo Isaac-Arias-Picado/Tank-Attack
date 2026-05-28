@@ -51,13 +51,18 @@ void Renderer::initHUD() {
     infoTanquesTexto = new sf::Text(font, "", 18);
 }
 
-void Renderer::updateHUD(Jugador* jugadorActivo) {
+void Renderer::updateHUD(Jugador* jugadorActivo, float tiempoRestante) {
     if (!fontLoaded || turnoTexto == nullptr || infoTanquesTexto == nullptr) {
         return;
     }
 
+    int minutos = (int)tiempoRestante / 60;
+    int segundos = (int)tiempoRestante % 60;
+
     std::string turnoStr = "Turno: ";
     turnoStr += jugadorActivo->getNombre();
+    turnoStr += "   Tiempo: ";
+    turnoStr += std::to_string(minutos) + ":" + (segundos < 10 ? "0" : "") + std::to_string(segundos);
 
     *turnoTexto = sf::Text(font, turnoStr, 24);
     turnoTexto->setPosition(sf::Vector2f(10.0f, static_cast<float>(ROWS * CELL_SIZE + 10)));
@@ -286,8 +291,61 @@ void Renderer::render() {
     window.display();
 }
 
-void Renderer::updateTurnDisplay(Jugador* jugadorActivo) {
-    updateHUD(jugadorActivo);
+void Renderer::mostrarVictoria(Jugador* ganador) {
+    while (window.isOpen()) {
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>())
+                window.close();
+            if (event->is<sf::Event::KeyPressed>()) {
+                auto* kp = event->getIf<sf::Event::KeyPressed>();
+                if (kp->code == sf::Keyboard::Key::Escape)
+                    window.close();
+            }
+        }
+
+        window.clear(sf::Color(30, 30, 60)); 
+
+        // fondo del mensaje
+        sf::RectangleShape fondo(sf::Vector2f(600.f, 200.f));
+        fondo.setFillColor(sf::Color(0, 0, 0, 180));
+        fondo.setOutlineThickness(3.f);
+        fondo.setOutlineColor(sf::Color::White);
+        fondo.setPosition(sf::Vector2f(
+            (COLS * CELL_SIZE - 600.f) / 2.f,
+            (ROWS * CELL_SIZE - 200.f) / 2.f
+        ));
+        window.draw(fondo);
+
+        // texto principal
+        std::string msg;
+        if (ganador == nullptr)
+            msg = "Empate!";
+        else {
+            msg = "Gano: ";
+            msg += ganador->getNombre();
+        }
+
+        sf::Text texto(font, msg, 48);
+        texto.setFillColor(ganador == nullptr ? sf::Color::White : sf::Color::Yellow);
+        sf::FloatRect bounds = texto.getLocalBounds();
+        texto.setPosition(sf::Vector2f(
+            (COLS * CELL_SIZE - bounds.size.x) / 2.f,
+            (ROWS * CELL_SIZE - bounds.size.y) / 2.f - 20.f
+        ));
+        window.draw(texto);
+
+        // texto instruccion
+        sf::Text instruccion(font, "Presiona ESC para salir", 24);
+        instruccion.setFillColor(sf::Color(200, 200, 200));
+        sf::FloatRect bounds2 = instruccion.getLocalBounds();
+        instruccion.setPosition(sf::Vector2f(
+            (COLS * CELL_SIZE - bounds2.size.x) / 2.f,
+            (ROWS * CELL_SIZE - bounds2.size.y) / 2.f + 50.f
+        ));
+        window.draw(instruccion);
+
+        window.display();
+    }
 }
 
 bool Renderer::isOpen() const {

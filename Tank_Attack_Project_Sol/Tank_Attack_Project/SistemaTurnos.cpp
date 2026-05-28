@@ -76,6 +76,12 @@ void SistemaTurnos::generarPowerupAleatorio() {
 	jugadores[jugador]->getCola()->Enlistar(p);
 }
 
+float SistemaTurnos::getTiempoRestante() {
+	float restante = tiempoLimite - reloj.getElapsedTime().asSeconds();
+	if (restante < 0) return 0;
+	return restante;
+}
+
 void SistemaTurnos::agregarTurnoExtra() {
 	turnosExtra++;
 }

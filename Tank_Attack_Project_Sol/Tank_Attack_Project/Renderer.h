@@ -39,7 +39,6 @@ private:
     bool mostrarRutaBala;
 
     void initHUD();
-    void updateHUD(Jugador* jugadorActivo);
     void drawHUD();
 
 public:
@@ -48,7 +47,7 @@ public:
 
     bool init();
     void render();
-    void updateTurnDisplay(Jugador* jugadorActivo);
+    void updateHUD(Jugador* jugadorActivo, float tiempoRestante);
     std::optional<sf::Event> pollEvent();
     void close();
     bool isOpen() const;
@@ -62,4 +61,5 @@ public:
     void setRutaBala(Path p);
     void limpiarRutas();
     void drawPowerups(Jugador* jugador, float yPos);
+    void mostrarVictoria(Jugador* ganador);
 };
