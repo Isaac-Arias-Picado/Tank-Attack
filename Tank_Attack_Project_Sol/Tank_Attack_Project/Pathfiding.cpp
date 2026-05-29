@@ -198,66 +198,57 @@ Path bfs(Graph* grafo, int origen, int destino) {
 static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
     int filaO = origen / ancho, colO = origen % ancho;
     int filaD = destino / ancho, colD = destino % ancho;
-    std::cout << "origen fila=" << origen / ancho << " col=" << origen % ancho << std::endl;
-    std::cout << "destino fila=" << destino / ancho << " col=" << destino % ancho << std::endl;
-    if (origen == destino) {
-        return false;
-    }
 
-    if ( (filaO == filaD) && (colO!= colD)) {
-        std::cout << "Entro" << std::endl;
-        bool libreH = true;
-        int c = colO;
-        int paso = (colD > colO) ? 1 : -1;
-        for (c = colO + paso; c != colD + paso; c += paso) {
-            if (!grafo->disponible(filaO * ancho + c)) { libreH = false; break; }
+    if (origen == destino) return true;
+
+    int dx = abs(colD - colO);
+    int dy = abs(filaD - filaO);
+    int pasoX = (colD > colO) ? 1 : -1;
+    int pasoY = (filaD > filaO) ? 1 : -1;
+
+    int error = dx - dy;
+    int x = colO, y = filaO;
+
+    while (true) {
+        if (x == colD && y == filaD) return true;
+
+        // Verificar celda actual
+        int celdaActual = y * ancho + x;
+        if (celdaActual != origen && !grafo->disponible(celdaActual)) {
+            return false;
         }
-        if (libreH) {
-            std::cout << "Aplicando horizontal" << std::endl;
-            int f;
-            int pasoF = (filaD > filaO) ? 1 : -1;
-            for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
-                if (!grafo->disponible(f * ancho + colD)) { libreH = false; break; }
+
+        // Para diagonales, verificar también la celda 
+        int error2 = 2 * error;
+        bool moverX = (error2 > -dy);
+        bool moverY = (error2 < dx);
+
+        if (moverX && moverY) {
+            // Movimiento diagonal: verificar también la celda lateral
+            int celdaLateralX = y * ancho + (x + pasoX);
+            int celdaLateralY = (y + pasoY) * ancho + x;
+
+            if (celdaLateralX != origen && !grafo->disponible(celdaLateralX)) {
+                return false;
+            }
+            if (celdaLateralY != origen && !grafo->disponible(celdaLateralY)) {
+                return false;
             }
         }
-        if (libreH) return true;
-    }
 
-    if ((filaO != filaD) && (colO == colD)) {
-        bool libreV = true;
-        int pasoF = (filaD > filaO) ? 1 : -1;
-        int c = filaO;
-        int f;
-        for (f = filaO + pasoF; f != filaD + pasoF; f += pasoF) {
-            if (!grafo->disponible(f * ancho + colO)) { libreV = false; break; }
+        if (moverX) {
+            error -= dy;
+            x += pasoX;
         }
-        if (libreV) {
-            std::cout << "Aplicando vertical" << std::endl;
-            int pasoC = (colD > colO) ? 1 : -1;
-            for (c = colO + pasoC; c != colD + pasoC; c += pasoC) {
-                if (!grafo->disponible(filaD * ancho + c)) { libreV = false; break; }
-            }
+        if (moverY) {
+            error += dx;
+            y += pasoY;
         }
-        return libreV;
-    }
 
-    // Ortogonal
-    if (filaO == filaD || colO == colD) {
-        if (filaO == filaD) {
-            int min = (colO < colD) ? colO : colD;
-            int max = (colO > colD) ? colO : colD;
-            for (int c = min + 1; c < max; c++)
-                if (!grafo->disponible(filaO * ancho + c)) return false;
+        if (x < 0 || x >= ancho || y < 0 || y >= (400 / ancho)) {
+            return false;
         }
-        else {
-            int min = (filaO < filaD) ? filaO : filaD;
-            int max = (filaO > filaD) ? filaO : filaD;
-            for (int f = min + 1; f < max; f++)
-                if (!grafo->disponible(f * ancho + colO)) return false;
-        }
-        return true;
     }
-    return false;
 }
 
 

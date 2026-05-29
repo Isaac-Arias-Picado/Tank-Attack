@@ -30,9 +30,6 @@ private:
     sf::Text* infoTanquesTexto;
     sf::RectangleShape hudFondo;
 
-    sf::Clock relojRuta;
-    float tiempoMostrarRuta = 1.0f;
-
     Path rutaTanque;
     Path rutaBala;
     bool mostrarRutaTanque;
@@ -56,7 +53,6 @@ public:
 
     sf::RenderWindow& getWindow() { return window; }
     sf::Vector2u getWindowSize() const { return window.getSize(); }
-
 
     void setRutaTanque(Path p);
     void setRutaBala(Path p);

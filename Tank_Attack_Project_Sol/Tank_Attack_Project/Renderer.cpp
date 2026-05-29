@@ -11,7 +11,7 @@
 Renderer::Renderer(Graph* grafo, Jugador* j1, Jugador* j2)
     : grafo(grafo), jugador1(j1), jugador2(j2), fontLoaded(false),
     turnoTexto(nullptr), infoTanquesTexto(nullptr), mostrarRutaBala(false), mostrarRutaTanque(false), nodoTeletransporte(-1),
-    tiempoMostrarRuta(1.0f), window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 250) }), "Tank Attack") {
+    window(sf::VideoMode({ (unsigned int)(COLS * CELL_SIZE), (unsigned int)(ROWS * CELL_SIZE + 250) }), "Tank Attack") {
     window.setFramerateLimit(60);
     initHUD();
 }
@@ -200,9 +200,6 @@ bool Renderer::init() {
 
 void Renderer::render() {
     window.clear(sf::Color::Black);
-    if ((mostrarRutaTanque || mostrarRutaBala) && relojRuta.getElapsedTime().asSeconds() > tiempoMostrarRuta) {
-        limpiarRutas();
-    }
 
     int n = grafo->getN();
     int ancho = grafo->getAncho();
@@ -259,7 +256,6 @@ void Renderer::render() {
                 window.draw(spriteTanque);
             }
 
-            // Barra de vida
             float pct = t->getVida() / t->getVidaMaxima();
             float barW = (float)CELL_SIZE - 4.f;
             float barH = 5.f;
@@ -278,7 +274,6 @@ void Renderer::render() {
         }
     }
 
-    // Dibujar ruta del tanque
     if (mostrarRutaTanque) {
         for (int i = 0; i < rutaTanque.longitud; i++) {
             int id = rutaTanque.nodos[i];
@@ -286,11 +281,11 @@ void Renderer::render() {
             int col = id % ancho;
             sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
             rect.setPosition(sf::Vector2f(col * CELL_SIZE, fila * CELL_SIZE));
-            rect.setFillColor(sf::Color(255, 255, 0, 80)); //amarillo 
+            rect.setFillColor(sf::Color(255, 255, 0, 80));
             window.draw(rect);
         }
     }
-    // Dibujar nodo de teletransporte
+
     if (nodoTeletransporte != -1) {
         int fila = nodoTeletransporte / ancho;
         int col = nodoTeletransporte % ancho;
@@ -299,7 +294,7 @@ void Renderer::render() {
         rect.setFillColor(sf::Color(0, 100, 255, 120));
         window.draw(rect);
     }
-    // Dibujar ruta de la bala
+
     if (mostrarRutaBala) {
         for (int i = 0; i < rutaBala.longitud; i++) {
             int id = rutaBala.nodos[i];
@@ -307,7 +302,7 @@ void Renderer::render() {
             int col = id % ancho;
             sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
             rect.setPosition(sf::Vector2f(col * CELL_SIZE, fila * CELL_SIZE));
-            rect.setFillColor(sf::Color(255, 0, 0, 80)); //rojo 
+            rect.setFillColor(sf::Color(255, 0, 0, 80));
             window.draw(rect);
         }
     }
@@ -328,9 +323,8 @@ void Renderer::mostrarVictoria(Jugador* ganador) {
             }
         }
 
-        window.clear(sf::Color(30, 30, 60)); 
+        window.clear(sf::Color(30, 30, 60));
 
-        // fondo del mensaje
         sf::RectangleShape fondo(sf::Vector2f(600.f, 200.f));
         fondo.setFillColor(sf::Color(0, 0, 0, 180));
         fondo.setOutlineThickness(3.f);
@@ -341,7 +335,6 @@ void Renderer::mostrarVictoria(Jugador* ganador) {
         ));
         window.draw(fondo);
 
-        // texto principal
         std::string msg;
         if (ganador == nullptr)
             msg = "Empate!";
@@ -359,7 +352,6 @@ void Renderer::mostrarVictoria(Jugador* ganador) {
         ));
         window.draw(texto);
 
-        // texto instruccion
         sf::Text instruccion(font, "Presiona ESC para salir", 24);
         instruccion.setFillColor(sf::Color(200, 200, 200));
         sf::FloatRect bounds2 = instruccion.getLocalBounds();
@@ -382,27 +374,25 @@ void Renderer::handleEvents() {
         if (event->is<sf::Event::Closed>())
             window.close();
     }
-
 }
 
 void Renderer::setRutaTanque(Path p) {
     rutaTanque = p;
-    mostrarRutaTanque = true;
-    relojRuta.restart();
+    mostrarRutaTanque = p.longitud > 0;
 }
 
 void Renderer::setRutaBala(Path p) {
     rutaBala = p;
     mostrarRutaBala = true;
-    relojRuta.restart();
 }
 
 void Renderer::limpiarRutas() {
     mostrarRutaTanque = false;
     mostrarRutaBala = false;
+    rutaTanque = Path(); 
+    rutaBala = Path();    
     nodoTeletransporte = -1;
 }
-
 void Renderer::setNodoTeleporte(int nodo) {
     nodoTeletransporte = nodo;
 }

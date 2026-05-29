@@ -9,8 +9,6 @@
 #include "Cola.h"
 #include "Powerup.h"
 
-const int MAX_BALAS = 20;
-
 class Presentador {
 public:
     Presentador();
@@ -28,8 +26,8 @@ private:
     bool esperandoDestino;
     bool esperandoDisparoDestino;
 
-    Bala* balas[MAX_BALAS];
-    int numBalas;
+    Bala* balaActual;  
+    bool turnoPendiente;
 
     int turnosParaPowerup;
     int contadorTurnos;
@@ -39,7 +37,7 @@ private:
     sf::Clock relojBala;
     float velocidadBala;
 
-    int estadoMov; 
+    int estadoMov;
     sf::Clock relojEspera;
     Path rutaParcial;
     int nodoTeletransporte;

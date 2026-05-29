@@ -12,14 +12,14 @@ Presentador::Presentador()
     tanqueSeleccionado(nullptr),
     esperandoDestino(false),
     esperandoDisparoDestino(false),
-    numBalas(0),
+    balaActual(nullptr),
+    turnoPendiente(false),
     contadorTurnos(0),
     velocidadTanque(0.1f),
     velocidadBala(0.1f),
     estadoMov(0),
     nodoTeletransporte(-1)
 {
-    for (int i = 0; i < MAX_BALAS; i++) balas[i] = nullptr;
     turnosParaPowerup = rand() % 5 + 2;
 }
 
@@ -27,12 +27,6 @@ bool Presentador::init() {
     jugador1.asignarTanques();
     jugador2.asignarTanques();
     mapa.generarObstaculos(50);
-
-    // Pruebas
-    jugador1.getCola()->Enlistar(new DobleTurno(&turnos));
-    jugador1.getCola()->Enlistar(new PoderAtaque(&turnos));
-    jugador2.getCola()->Enlistar(new PrecisionMovimiento(&turnos));
-    jugador2.getCola()->Enlistar(new PrecisionAtaque(&turnos));
 
     return renderer.init();
 }
@@ -53,12 +47,11 @@ void Presentador::run() {
         avanzarBalas();
     }
 
-    for (int i = 0; i < MAX_BALAS; i++) {
-        if (balas[i] != nullptr) delete balas[i];
-    }
+    if (balaActual != nullptr) delete balaActual;
 }
 
 void Presentador::avanzarTurno() {
+    renderer.limpiarRutas();
     turnos.completarTurno();
     turnos.siguienteTurno();
     contadorTurnos++;
@@ -72,9 +65,9 @@ void Presentador::avanzarTurno() {
 void Presentador::avanzarTanque() {
     if (tanqueSeleccionado == nullptr || esperandoDestino || esperandoDisparoDestino) return;
 
-    if (estadoMov == 1) { // Se verifica teletransporte para movimiento aleatorio
+    if (estadoMov == 1) {
         if (relojEspera.getElapsedTime().asSeconds() >= 0.5f) {
-            estadoMov = 2; // Estado de movimiento
+            estadoMov = 2;
             renderer.limpiarRutas();
             renderer.setRutaTanque(rutaFinal);
             renderer.setNodoTeleporte(nodoTeletransporte);
@@ -82,7 +75,8 @@ void Presentador::avanzarTanque() {
         return;
     }
 
-    if (estadoMov == 2) { //Movimiento
+    if (estadoMov == 2) {
+        renderer.limpiarNodoTeleporte();
         if (tanqueSeleccionado->enMovimiento()) {
             if (relojMovimiento.getElapsedTime().asSeconds() > velocidadTanque) {
                 tanqueSeleccionado->paso();
@@ -90,10 +84,10 @@ void Presentador::avanzarTanque() {
             }
         }
         else {
-            avanzarTurno(); //Sino se pasa el turno
+            avanzarTurno();
             tanqueSeleccionado = nullptr;
             esperandoDestino = false;
-            estadoMov = 0; 
+            estadoMov = 0;
             nodoTeletransporte = -1;
             renderer.limpiarNodoTeleporte();
         }
@@ -101,20 +95,32 @@ void Presentador::avanzarTanque() {
 }
 
 void Presentador::avanzarBalas() {
-    for (int i = 0; i < numBalas; i++) {
-        if (balas[i] != nullptr && balas[i]->estaActivo()) {
-            if (relojBala.getElapsedTime().asSeconds() > velocidadBala) {
-                balas[i]->mover_bala();
-                relojBala.restart();
-                if (balas[i]->getRebotoReciente()) {
-                    renderer.setRutaBala(balas[i]->getPath());
-                    balas[i]->setRebotoReciente(false);
-                }
+    // Si no hay bala, no hacer nada
+    if (balaActual == nullptr) return;
+
+    // Si la bala está activa, moverla
+    if (balaActual->estaActivo()) {
+        if (relojBala.getElapsedTime().asSeconds() > velocidadBala) {
+            balaActual->mover_bala();
+            relojBala.restart();
+
+            // Actualizar ruta mientras se mueve
+            renderer.setRutaBala(balaActual->getPath());
+
+            if (balaActual->getRebotoReciente()) {
+                balaActual->setRebotoReciente(false);
             }
         }
-        else if (balas[i] != nullptr && !balas[i]->estaActivo()) {
-            delete balas[i];
-            balas[i] = nullptr;
+    }
+    else {
+        // Bala terminó su movimiento
+        delete balaActual;
+        balaActual = nullptr;
+
+        // Avanzar turno si estaba pendiente
+        if (turnoPendiente) {
+            turnoPendiente = false;
+            avanzarTurno();
         }
     }
 }
@@ -156,6 +162,8 @@ void Presentador::onClickIzquierdo(int nodoClick) {
             tanqueSeleccionado = t;
             esperandoDestino = true;
             esperandoDisparoDestino = false;
+            nodoTeletransporte = -1;
+            renderer.limpiarNodoTeleporte();
             std::cout << "Tanque seleccionado en nodo " << nodoClick << std::endl;
             return;
         }
@@ -182,10 +190,14 @@ void Presentador::onClickIzquierdo(int nodoClick) {
                 rutaFinal.indiceActual = 1;
                 nodoTeletransporte = p.nodoTeletransporte;
                 renderer.setRutaTanque(rutaParcial);
+                renderer.setNodoTeleporte(nodoTeletransporte); 
                 estadoMov = 1;
                 relojEspera.restart();
             }
             else {
+
+                nodoTeletransporte = -1;
+                renderer.limpiarNodoTeleporte(); 
                 renderer.setRutaTanque(p);
                 estadoMov = 2;
             }
@@ -213,7 +225,8 @@ void Presentador::onClickDerecho(int nodoClick) {
     }
 
     if (esperandoDisparoDestino) {
-        if (numBalas < MAX_BALAS) {
+        // Solo disparar si no hay bala activa
+        if (balaActual == nullptr) {
             int nodoTanque = tanqueSeleccionado->getNodoActual();
             int ancho = mapa.getAncho();
             int fila = nodoTanque / ancho;
@@ -236,19 +249,22 @@ void Presentador::onClickDerecho(int nodoClick) {
             if (nodoOrigen >= 0 && nodoOrigen < 400 && !esObstaculo) {
                 bool poder = activo->getPoderAtaque();
                 bool precision = activo->getPrecisionAtaque();
-                Bala* bala = new Bala(nodoOrigen, nodoClick, activo->getId(), poder, &mapa, precision);
-                renderer.setRutaBala(bala->getPath());
+                balaActual = new Bala(nodoOrigen, nodoClick, activo->getId(), poder, &mapa, precision);
+                renderer.setRutaBala(balaActual->getPath());
                 activo->setPoderAtaque(false);
                 activo->setPrecisionAtaque(false);
-                balas[numBalas++] = bala;
+
                 std::cout << "Disparo desde nodo " << nodoOrigen << " a " << nodoClick << std::endl;
                 esperandoDisparoDestino = false;
                 tanqueSeleccionado = nullptr;
-                avanzarTurno();
+                turnoPendiente = true;
             }
             else {
                 std::cout << "No hay espacio para disparar en esa direccion" << std::endl;
             }
+        }
+        else {
+            std::cout << "Ya hay una bala activa, espera a que termine" << std::endl;
         }
     }
 }
