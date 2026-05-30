@@ -34,11 +34,9 @@ void Tanque::mover_tanque(int nuevaCasilla) {
         }
         if (roll < prob) {
             pathActual = bfs(grafo, nodoActual, nuevaCasilla);
-            std::cout << "Tanque " << color << " usando BFS" << std::endl;
         }
         else {
             pathActual = movimientoAleatorio(grafo, nodoActual, nuevaCasilla);
-            std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
         }
     }
     else {
@@ -50,11 +48,9 @@ void Tanque::mover_tanque(int nuevaCasilla) {
         }
         if (roll < prob) {
             pathActual = dijkstra(grafo, nodoActual, nuevaCasilla);
-            std::cout << "Tanque " << color << " usando Dijkstra" << std::endl;
         }
         else {
             pathActual = movimientoAleatorio(grafo, nodoActual, nuevaCasilla);
-            std::cout << "Tanque " << color << " usando Movimiento Aleatorio" << std::endl;
         }
     }
     objjugador->setPrecisionMovimiento(false);

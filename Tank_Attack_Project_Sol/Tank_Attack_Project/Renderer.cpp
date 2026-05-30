@@ -156,6 +156,13 @@ void Renderer::drawPowerups(Jugador* jugador, float yPos) {
 
         xPos += 45.0f;
     }
+    std::string& ultimoUso = (jugador->getId() == 0) ? ultimoPowerupJ1 : ultimoPowerupJ2;
+    if (!ultimoUso.empty()) {
+        sf::Text textoUltimo(font, ultimoUso, 14);
+        textoUltimo.setFillColor(sf::Color(220, 220, 100));
+        textoUltimo.setPosition(sf::Vector2f(10.0f, yPos + 25.0f));
+        window.draw(textoUltimo);
+    }
 }
 
 std::optional<sf::Event> Renderer::pollEvent() {
@@ -399,4 +406,16 @@ void Renderer::setNodoTeleporte(int nodo) {
 
 void Renderer::limpiarNodoTeleporte() {
     nodoTeletransporte = -1;
+}
+
+void Renderer::setUltimoPowerup(int jugadorId, const char* nombre) {
+    if (jugadorId == 0)
+        ultimoPowerupJ1 = std::string("Power up usado: ") + nombre;
+    else
+        ultimoPowerupJ2 = std::string("Power up usado: ") + nombre;
+}
+
+void Renderer::limpiarUltimoPowerup(int jugadorId) {
+    if (jugadorId == 0) ultimoPowerupJ1 = "";
+    else ultimoPowerupJ2 = "";
 }

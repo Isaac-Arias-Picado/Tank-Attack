@@ -39,6 +39,9 @@ private:
     void initHUD();
     void drawHUD();
 
+    std::string ultimoPowerupJ1;
+    std::string ultimoPowerupJ2;
+
 public:
     Renderer(Graph* grafo, Jugador* j1, Jugador* j2);
     ~Renderer();
@@ -61,4 +64,6 @@ public:
     void mostrarVictoria(Jugador* ganador);
     void setNodoTeleporte(int nodo);
     void limpiarNodoTeleporte();
+    void setUltimoPowerup(int jugadorId, const char* nombre);
+    void limpiarUltimoPowerup(int jugadorId);
 };

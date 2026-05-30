@@ -218,13 +218,12 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
             return false;
         }
 
-        // Para diagonales, verificar también la celda 
+        // Para diagonales verificar también la celda 
         int error2 = 2 * error;
         bool moverX = (error2 > -dy);
         bool moverY = (error2 < dx);
 
         if (moverX && moverY) {
-            // Movimiento diagonal: verificar también la celda lateral
             int celdaLateralX = y * ancho + (x + pasoX);
             int celdaLateralY = (y + pasoY) * ancho + x;
 
@@ -253,7 +252,6 @@ static bool lineaVista(Graph* grafo, int origen, int destino, int ancho) {
 
 
 static int nodoAleatorioEnRadio(Graph* grafo, int origen, int radio, int ancho, int largo) {
-    std::cout << "Nodo teletrnasportandose" << std::endl;
     int fila = origen / ancho;
     int col = origen % ancho;
 
@@ -316,7 +314,7 @@ Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
     int ancho = grafo->getAncho();
     int largo = grafo->getLargo();
 
-    // Intento 1: linea vista directa origen -> destino
+    //linea vista directa origen 
     if (lineaVista(grafo, origen, destino, ancho)) {
         return avanzarHastaDonde(grafo, origen, destino, ancho);
     }
@@ -324,14 +322,13 @@ Path movimientoAleatorio(Graph* grafo, int origen, int destino, int radio) {
     // Teletransporte a posicion aleatoria en el radio
     int intermedio = nodoAleatorioEnRadio(grafo, origen, radio, ancho, largo);
     if (intermedio == origen) {
-        // No encontro intermedio, caminar desde origen hasta donde se pueda
+        // No encontro intermedio caminar desde origen hasta donde se pueda
         return avanzarHastaDonde(grafo, origen, destino, ancho);
     }
 
     // Desde el intermedio, caminar en escalera hacia destino
     Path pathFinal = avanzarHastaDonde(grafo, intermedio, destino, ancho);
 
-    // Path: origen (nodo actual) + camino desde intermedio
     // El tanque aparece en intermedio y camina de ahi al destino
     Path resultado;
     resultado.nodos[resultado.longitud++] = origen;    // posicion inicial

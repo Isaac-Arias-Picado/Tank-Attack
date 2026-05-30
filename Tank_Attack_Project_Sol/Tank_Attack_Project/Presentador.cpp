@@ -54,6 +54,7 @@ void Presentador::avanzarTurno() {
     renderer.limpiarRutas();
     turnos.completarTurno();
     turnos.siguienteTurno();
+    renderer.limpiarUltimoPowerup(turnos.getJugadorActivo()->getId());
     contadorTurnos++;
     if (contadorTurnos >= turnosParaPowerup) {
         turnos.generarPowerupAleatorio();
@@ -164,7 +165,6 @@ void Presentador::onClickIzquierdo(int nodoClick) {
             esperandoDisparoDestino = false;
             nodoTeletransporte = -1;
             renderer.limpiarNodoTeleporte();
-            std::cout << "Tanque seleccionado en nodo " << nodoClick << std::endl;
             return;
         }
     }
@@ -201,17 +201,14 @@ void Presentador::onClickIzquierdo(int nodoClick) {
                 renderer.setRutaTanque(p);
                 estadoMov = 2;
             }
-            std::cout << "Moviendo a nodo " << nodoClick << std::endl;
         }
         else {
-            std::cout << "Destino invalido o bloqueado" << std::endl;
         }
     }
 }
 
 void Presentador::onClickDerecho(int nodoClick) {
     Jugador* activo = turnos.getJugadorActivo();
-    std::cout << "Click derecho en nodo " << nodoClick << std::endl;
 
     for (int i = 0; i < 4; i++) {
         Tanque* t = activo->getTanque(i);
@@ -219,7 +216,6 @@ void Presentador::onClickDerecho(int nodoClick) {
             tanqueSeleccionado = t;
             esperandoDisparoDestino = true;
             esperandoDestino = false;
-            std::cout << "Tanque seleccionado para disparar en nodo " << nodoClick << std::endl;
             return;
         }
     }
@@ -253,18 +249,14 @@ void Presentador::onClickDerecho(int nodoClick) {
                 renderer.setRutaBala(balaActual->getPath());
                 activo->setPoderAtaque(false);
                 activo->setPrecisionAtaque(false);
-
-                std::cout << "Disparo desde nodo " << nodoOrigen << " a " << nodoClick << std::endl;
                 esperandoDisparoDestino = false;
                 tanqueSeleccionado = nullptr;
                 turnoPendiente = true;
             }
             else {
-                std::cout << "No hay espacio para disparar en esa direccion" << std::endl;
             }
         }
         else {
-            std::cout << "Ya hay una bala activa, espera a que termine" << std::endl;
         }
     }
 }
@@ -273,6 +265,7 @@ void Presentador::onShiftPresionado() {
     Jugador* activo = turnos.getJugadorActivo();
     Powerup* p = activo->getCola()->Desenlistar();
     if (p != nullptr) {
+        renderer.setUltimoPowerup(activo->getId(), p->getNombre());
         activo->setPowerupPendiente(p);
         tanqueSeleccionado = nullptr;
         esperandoDestino = false;

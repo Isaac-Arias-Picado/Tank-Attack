@@ -39,7 +39,6 @@ Bala::Bala(int nodoOrigen, int nodoDestino, int jugador, bool poderAtaque, Graph
 }
 
 void Bala::mover_bala() {
-    std::cout << "mover_bala: indiceActual=" << pathActual.indiceActual << " longitud=" << pathActual.longitud << std::endl;
     if (!activo) return;
 
     if (pathActual.longitud == 0 || pathActual.indiceActual >= pathActual.longitud) {
@@ -76,7 +75,6 @@ void Bala::mover_bala() {
             return;
         }
         else if (tipo != nullptr && strcmp(tipo, "Obstaculo") == 0) {
-            std::cout << "Obstaculo detectado en nodo: " << siguiente << std::endl;
             rebotar();
             return;
         }
@@ -140,17 +138,12 @@ void Bala::rebotar() {
     int filaTemp = filaActual + direccionFila;
     int colTemp = colActual + direccionColumna;
 
-    std::cout << "filaActual=" << filaActual << " colActual=" << colActual << std::endl;
-    std::cout << "filaTemp inicio=" << filaActual + direccionFila << " colTemp inicio=" << colActual + direccionColumna << std::endl;
-
-    // Cambiado: detenerse si encuentra un objeto; si es un Tanque incluirlo como destino
     while (filaTemp >= 0 && filaTemp < largo && colTemp >= 0 && colTemp < ancho) {
         int nodoTemp = filaTemp * ancho + colTemp;
         Node* n = grafo->getNodo(nodoTemp);
         Object* obj = n ? n->getObjeto() : nullptr;
         if (obj != nullptr) {
             if (strcmp(obj->getTipo(), "Tanque") == 0) {
-                // incluir el tanque como destino (avanzar una celda más para que luego se reste)
                 filaTemp += direccionFila;
                 colTemp += direccionColumna;
             }
@@ -186,11 +179,8 @@ void Bala::rebotar() {
         activo = false;
         return;
     }
-
-    // Confirmado que hay rebote válido: consumir un rebote
+    
     rebotes--;
-    std::cout << "nodoActual=" << nodoActual << " nuevoDestino=" << nuevoDestino << std::endl;
-    std::cout << "direccionFila=" << direccionFila << " direccionColumna=" << direccionColumna << std::endl;
     pathActual = movimientoBala(grafo, nodoActual, nuevoDestino);
     rebotoReciente = true;
 }

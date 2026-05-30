@@ -19,20 +19,20 @@ const char* Powerup::getNombre() {
 
 void DobleTurno::aplicar(Jugador* jugador) {
     turno->agregarTurnoExtra();
-    std::cout << "DobleTurno aplicado!" << std::endl;
+    std::cout << "DobleTurno aplicado" << std::endl;
 }
 
 void PrecisionMovimiento::aplicar(Jugador* jugador) {
     jugador->setPrecisionMovimiento(true);
-    std::cout << "PrecisionMovimiento aplicado!" << std::endl;
+    std::cout << "PrecisionMovimiento aplicado" << std::endl;
 }
 
 void PrecisionAtaque::aplicar(Jugador* jugador) {
     jugador->setPrecisionAtaque(true);
-    std::cout << "PrecisionAtaque aplicado!" << std::endl;
+    std::cout << "PrecisionAtaque aplicado" << std::endl;
 }
 
 void PoderAtaque::aplicar(Jugador* jugador) {
     jugador->setPoderAtaque(true);
-    std::cout << "PoderAtaque aplicado!" << std::endl;
+    std::cout << "PoderAtaque aplicado" << std::endl;
 }
